@@ -1,4 +1,5 @@
 // TODO: maybe add a signal for blank, so that we can blank it out
+// hcount must always increment by one unless hsync - 1 is asserted
 module vga_controller (input logic clk, 
                        input logic reset, 
                        output logic hsync, 
@@ -7,7 +8,7 @@ module vga_controller (input logic clk,
                        output logic [9:0]  vcount,   // 0–524
                        output logic active_video);
 
-    // VGA 640x480 @ 60Hz
+    // VGA 640x480 @ 60Hz 1024 x 600
     // Pixel clock: 25.175 MHz
 
     // horizontal

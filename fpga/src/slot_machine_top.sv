@@ -10,6 +10,7 @@ module slot_machine_top (input logic clk,
                          output logic hsync, 
                          output logic vsync,
                          output logic [2:0] vga_rgb,
+                         output logic done,
                         
                          output logic [6:0] seven_segment_output);
 
@@ -22,6 +23,7 @@ module slot_machine_top (input logic clk,
     logic       is_win;
     logic       total_credits;
     logic       is_total;
+    logic       done;
 
     spi_data_extract spi_data_extract (
         .sclk          (sclk),
@@ -60,9 +62,11 @@ module slot_machine_top (input logic clk,
         .reel2_final_sprite (reel2_idx[2:0]),
         .reel3_final_sprite (reel3_idx[2:0]),
         .start_spin       (start_spin),
-        .pixel_rgb        (vga_rgb)
+        .pixel_rgb        (vga_rgb),
+        .done             (done) // so far only done for hwen finished spinning since havent done update points stuff
     );
 
     // seven segment display
+    // ROM block --> muxing
 
 endmodule

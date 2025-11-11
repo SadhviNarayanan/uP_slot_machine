@@ -1,8 +1,9 @@
 // TODO: need to define bus widths for these signals, and do we need a reset, and ack
+// have a single wire/pin ack like done after spin is done and after any requet has been serviced
 module spi_data_extract (input  logic sclk, 
                          input logic reset, 
                          input logic sdi, 
-                         input logic cs, 
+                         input logic cs,  // active low
                          input logic start, 
                          output logic sdo,
                          output logic [3:0] reel1_idx,
@@ -23,12 +24,12 @@ module spi_data_extract (input  logic sclk,
     localparam REQ_UPDATE = 4'b0011;
 
     always_ff @(posedge sclk, negedge reset) begin
-        if (!reset | (!start)) begin
+        if (!reset | cs) begin
             data <= 16'b0;
             ready <= 0;
             counter <= 4'b0;
         end else begin
-            if (start & (!ready)) begin
+            if (!cs & (!ready)) begin // cs is active low
                 data <= {data[14:0], sdi};
 
                 if (counter == 4'd15) begin
