@@ -58,9 +58,9 @@ module rom_wrapper (
     assign pixel_index = (y_in_sprite * SPRITE_WIDTH) + x_in_sprite;
     // Example: y=2, x=25 → pixel_index = 2*64 + 25 = 153
     
-    // Divide by 5 to get word offset within sprite -- which word?? (5 pixels per word)
+    // Divide by 5 to get word offset within sprite -- which word line??
     logic [11:0] word_offset;
-    assign word_offset = pixel_index / 5; // --> if pixel nuber is dividisble by 5, it wil be the fifth one in a line
+    assign word_offset = pixel_index / 5;
     
     // Which of the 4 BRAMs for this sprite? --> got which word line its own, now need to see which block this wordline belowngs to
     logic [1:0] bram_offset;    // 0-3
