@@ -11,19 +11,19 @@
 
 module memory_controller ( // TODO: need to define bus lengths
     input logic clk, // TODO: this is the 25.175MHz clock
-    input logic reset,
+    input logic reset_n,
     input logic [10:0] hcount, 
     input logic [9:0] vcount,
     input logic vsync,
-    input logic [2:0] reel1_final_sprite, 
-    input logic [2:0] reel2_final_sprite, 
-    input logic [2:0] reel3_final_sprite,
+    input logic [2:0] final1_sprite, 
+    input logic [2:0] final2_sprite, 
+    input logic [2:0] final3_sprite,
     input logic start_spin,
     output logic [2:0] pixel_rgb,
     output logic done
 );
 
-    localparam NUM_SPRITES = 8;
+    localparam NUM_SPRITES = 7;
     localparam SPRITE_HEIGHT = 64;
     localparam SPRITE_WIDTH = 64;
 
@@ -60,11 +60,12 @@ module memory_controller ( // TODO: need to define bus lengths
     // localparam REEL3_STRIDE = 3'd6;  // Reel 3: 5→3→1→7→5→3→1→7...
 
     localparam PIXELS_PER_FRAME = 2;
+    
 
     // Reel sequences (LUTs)
-    logic [2:0] reel1_sequence [0:7];
-    logic [2:0] reel2_sequence [0:7];
-    logic [2:0] reel3_sequence [0:7];
+    logic [2:0] reel1_sequence [0:6];
+    logic [2:0] reel2_sequence [0:6];
+    logic [2:0] reel3_sequence [0:6];
     
     initial begin
         // Reel 1: sequential
@@ -75,7 +76,6 @@ module memory_controller ( // TODO: need to define bus lengths
         reel1_sequence[4] = 3'd4; 
         reel1_sequence[5] = 3'd5;
         reel1_sequence[6] = 3'd6; 
-        reel1_sequence[7] = 3'd7;
         
         // Reel 2: shuffled
         reel2_sequence[0] = 3'd2; 
@@ -85,17 +85,15 @@ module memory_controller ( // TODO: need to define bus lengths
         reel2_sequence[4] = 3'd3; 
         reel2_sequence[5] = 3'd1;
         reel2_sequence[6] = 3'd4; 
-        reel2_sequence[7] = 3'd7;
         
         // Reel 3: different shuffle
         reel3_sequence[0] = 3'd5; 
         reel3_sequence[1] = 3'd3;
         reel3_sequence[2] = 3'd1; 
-        reel3_sequence[3] = 3'd7;
+        reel3_sequence[3] = 3'd4;
         reel3_sequence[4] = 3'd2; 
         reel3_sequence[5] = 3'd0;
         reel3_sequence[6] = 3'd6; 
-        reel3_sequence[7] = 3'd4;
     end
 
     logic [9:0] reel1_offset, reel2_offset, reel3_offset;
@@ -120,8 +118,8 @@ module memory_controller ( // TODO: need to define bus lengths
     // Find which sequence position shows the target sprite
     logic [9:0] centering_offset;
     assign centering_offset = (REEL_DISPLAY_HEIGHT / 2) - (SPRITE_HEIGHT / 2);  // 200 - 32 = 168
-    
-    // Reverse lookup: sprite → position
+
+    // doing a reverse lookup: sprite to position
     logic [2:0] reel1_target_pos, reel2_target_pos, reel3_target_pos;
     
     always_comb begin
@@ -137,7 +135,6 @@ module memory_controller ( // TODO: need to define bus lengths
             3'd3: reel2_target_pos = 3'd4;
             3'd1: reel2_target_pos = 3'd5;
             3'd4: reel2_target_pos = 3'd6;
-            3'd7: reel2_target_pos = 3'd7;
             default: reel2_target_pos = 3'd0;
         endcase
         
@@ -146,11 +143,10 @@ module memory_controller ( // TODO: need to define bus lengths
             3'd5: reel3_target_pos = 3'd0;
             3'd3: reel3_target_pos = 3'd1;
             3'd1: reel3_target_pos = 3'd2;
-            3'd7: reel3_target_pos = 3'd3;
-            3'd2: reel3_target_pos = 3'd4;
-            3'd0: reel3_target_pos = 3'd5;
-            3'd6: reel3_target_pos = 3'd6;
-            3'd4: reel3_target_pos = 3'd7;
+            3'd2: reel3_target_pos = 3'd3;
+            3'd0: reel3_target_pos = 3'd4;
+            3'd6: reel3_target_pos = 3'd5;
+            3'd4: reel3_target_pos = 3'd6;
             default: reel3_target_pos = 3'd0;
         endcase
     end
@@ -163,20 +159,23 @@ module memory_controller ( // TODO: need to define bus lengths
     ///////////////////////////////
 
     logic vsync_prev;
-    always_ff @(posedge clk, negedge reset) begin
-        if (!reset) begin
+    always_ff @(posedge clk, negedge reset_n) begin
+        if (!reset_n) begin
             frame_done <= 0;
-        end else if (!vsync && vsync_prev) begin // active low
-            frame_done <= 1;
+            vsync_prev <= 1;
         end else begin
-            frame_done <= 0;
+            if (!vsync && vsync_prev) begin // active low
+                frame_done <= 1;
+            end else begin
+                frame_done <= 0;
+            end
+            vsync_prev <= vsync;
         end
-
-        vsync_prev <= vsync;
     end
+    
 
-    always_ff @(posedge clk, negedge reset) begin
-        if (!reset) begin
+    always_ff @(posedge clk, negedge reset_n) begin
+        if (!reset_n) begin
             state <= IDLE;
             reel1_offset <= 0;
             reel2_offset <= 0;
@@ -184,7 +183,15 @@ module memory_controller ( // TODO: need to define bus lengths
             reel1_spin_amt <= 3'd5; // if this spins 5 times, then we can assume the reels below also spin 5 times, we what we want is just the extra spins for the other two
             reel2_spin_amt <= 3'd2;
             reel3_spin_amt <= 3'd2;
+            reel1_final_sprite <= 0;
+            reel2_final_sprite <= 0;
+            reel3_final_sprite <= 0;
         end else begin
+            if (state == IDLE && start_spin) begin
+                reel1_final_sprite <= final1_sprite;
+                reel2_final_sprite <= final2_sprite;
+                reel3_final_sprite <= final3_sprite;
+            end
             // state <= next_state; // because we have a new offset we need to wait for before displaying the next things
             if (frame_done) begin
                 state <= next_state; // because we have a new offset we need to wait for before displaying the next things
@@ -248,12 +255,12 @@ module memory_controller ( // TODO: need to define bus lengths
                 // reel3_spin_amt = 3'd2;
                 if (start_spin) begin
                     next_state = START_SPINNING;
-                    next_reel1_offset = reel1_offset; // hopefully this preserves the previosu ending state as hte next starting state (only reset clears it)
+                    next_reel1_offset = reel1_offset; // hopefully this preserves the previosu ending state as hte next starting state (only reset_n clears it)
                     next_reel2_offset = reel2_offset;
                     next_reel3_offset = reel3_offset;
-                    next_reel1_spin_amt = 4'd5;  // All reels do 5 base rotations
-                    next_reel2_spin_amt = 4'd2;  // Reel 2 does 2 extra rotations
-                    next_reel3_spin_amt = 4'd2;  // Reel 3 does 2 extra rotations
+                    next_reel1_spin_amt = 3'd5;  // All reels do 5 base rotations
+                    next_reel2_spin_amt = 3'd2;  // Reel 2 does 2 extra rotations
+                    next_reel3_spin_amt = 3'd2;  // Reel 3 does 2 extra rotations
                 end
             end
 
@@ -387,15 +394,14 @@ module memory_controller ( // TODO: need to define bus lengths
     logic [5:0] x_in_sprite, y_in_sprite;
     logic [9:0] y_in_reel;
     logic [2:0] seq_position;
-    logic [2:0] rgb_rom;
-    logic [$clog2(NUM_SPRITES*SPRITE_WIDTH*SPRITE_HEIGHT)-1:0] address; // each address here will hodl an rgb value
+    //logic [$clog2(NUM_SPRITES*SPRITE_WIDTH*SPRITE_HEIGHT)-1:0] address; // each address here will hodl an rgb value
     
     assign inside_reel1_prev = (hcount >= REEL1_START_H && hcount < REEL1_START_H + SPRITE_WIDTH) && (vcount >= REELS_START_V && vcount < REELS_END_V);
     assign inside_reel2_prev = (hcount >= REEL2_START_H && hcount < REEL2_START_H + SPRITE_WIDTH) && (vcount >= REELS_START_V && vcount < REELS_END_V);
     assign inside_reel3_prev = (hcount >= REEL3_START_H && hcount < REEL3_START_H + SPRITE_WIDTH) && (vcount >= REELS_START_V && vcount < REELS_END_V);
 
-    always_ff @(posedge clk or negedge reset) begin
-        if (!reset) begin
+    always_ff @(posedge clk, negedge reset_n) begin
+        if (!reset_n) begin
             inside_reel1 <= 0;
             inside_reel2 <= 0;
             inside_reel3 <= 0;
@@ -442,18 +448,18 @@ module memory_controller ( // TODO: need to define bus lengths
         .sprite_idx    (sprite_idx),
         .x_in_sprite   (x_in_sprite),
         .y_in_sprite   (y_in_sprite),
-        .pixel_rgb     (rgb_rom),
+        .pixel_rgb     (rgb_rom)
     );
     
     logic [2:0] rom_data_reg;
-    always_ff @(posedge clk or negedge reset) begin
-        if (!reset) rom_data_reg <= 3'b000;
+    always_ff @(posedge clk, negedge reset_n) begin
+        if (!reset_n) rom_data_reg <= 3'b000;
         else rom_data_reg <= rgb_rom; // rom_data is BRAM output (next-cycle if BRAM sync)
     end
 
     logic [2:0] rgb_rom;
-    always_ff @(posedge clk, negedge reset) begin
-        if (!reset) begin
+    always_ff @(posedge clk, negedge reset_n) begin
+        if (!reset_n) begin
             pixel_rgb <= 3'b000; // black background color
         end else if (inside_reel1 | inside_reel2 | inside_reel3) begin 
             pixel_rgb <= rom_data_reg; // rbg from ROM

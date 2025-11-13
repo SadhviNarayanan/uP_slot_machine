@@ -1,9 +1,9 @@
 module rom_wrapper (
-    input logic clk,
-    input logic [2:0] sprite_idx,       // 0-6 for 7 sprites
-    input logic [5:0] x_in_sprite,      // 0-63
-    input logic [5:0] y_in_sprite,      // 0-63
-    output logic [2:0] pixel_rgb        // 3-bit RGB output
+    input  logic clk,
+    input  logic [2:0] sprite_idx,       // 0-6 for 7 sprites
+    input  logic [5:0] x_in_sprite,      // 0-63
+    input  logic [5:0] y_in_sprite,      // 0-63
+    output logic [2:0] pixel_rgb         // 3-bit RGB output
 );
 
     localparam SPRITE_WIDTH = 64;

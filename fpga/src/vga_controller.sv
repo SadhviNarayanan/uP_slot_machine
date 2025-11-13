@@ -1,7 +1,7 @@
 // TODO: maybe add a signal for blank, so that we can blank it out
 // hcount must always increment by one unless hsync - 1 is asserted
-module vga_controller (input logic clk, 
-                       input logic reset, 
+module vga_controller (input  logic clk, 
+                       input  logic reset_n, 
                        output logic hsync, 
                        output logic vsync, 
                        output logic [10:0] hcount,  // 0–799
@@ -30,12 +30,9 @@ module vga_controller (input logic clk,
     localparam H_SYNC_END   = H_DISPLAY + H_FRONT + H_SYNC;  // 752
     localparam V_SYNC_START = V_DISPLAY + V_FRONT;           // 490
     localparam V_SYNC_END   = V_DISPLAY + V_FRONT + V_SYNC;  // 492
-
-    output logic [10:0] hcount,  // 11 bits for 0-799
-    output logic [9:0] vcount    // 10 bits for 0-524
     
-    always_ff @(posedge clk, negedge reset) begin
-        if (!reset) begin
+    always_ff @(posedge clk, negedge reset_n) begin
+        if (!reset_n) begin
             hcount <= 0;
             vcount <= 0;
             // TODO on a reset we need to pulse hsync and vsync to 0 so we start at a known place
