@@ -65,4 +65,8 @@ module vga_controller (input  logic clk,
     // the inverse of this will tell me if i am in a blank region (anywhere where i am not in the display zone)
     assign active_video = ((hcount >= H_DISPLAY_START && hcount < H_DISPLAY_END) && (vcount >= V_DISPLAY_START && vcount < V_DISPLAY_END));
 
+    `ifdef DV
+        `include "vga_ctrl_sva.svh"
+    `endif
+
 endmodule

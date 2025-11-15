@@ -14,3 +14,8 @@ impl*/
 *.srp
 *.dmp
 ._Real_._Math_.vhd
+**/obj_dir/
+**/vga_formal/
+**/vga_formal_proof/
+**/vga_formal_cover/
+*.vcd
