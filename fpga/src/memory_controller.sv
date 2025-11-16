@@ -414,10 +414,10 @@ module memory_controller ( // TODO: need to define bus lengths
         
         if (inside_reel1_prev) begin
             y_in_reel = (vcount - REELS_START_V + reel1_offset) % TOTAL_HEIGHT;
-            seq_pos = y_in_reel[8:6]; // divide by 64
-            sprite_idx = reel1_sequence[seq_pos];
-            x_in_sprite = hcount - REEL1_START_H;
-            y_in_sprite = y_in_reel[5:0]; // % 64
+            seq_pos = y_in_reel[8:6]; // divide by 64 to get which sequence sprite we are on (each sprite has a height of 64 so this will tell us sprite order)
+            sprite_idx = reel1_sequence[seq_pos]; // but sprite order is not the same for each reel, so map sprite index to actual reel's sprite
+            x_in_sprite = hcount - REEL1_START_H; // find horizontal offset, simple
+            y_in_sprite = y_in_reel[5:0]; // % 64 to find y location offset
         end else if (inside_reel2_prev) begin
             y_in_reel = (vcount - REELS_START_V + reel2_offset) % TOTAL_HEIGHT;
             seq_pos = y_in_reel[8:6];
