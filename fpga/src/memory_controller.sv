@@ -501,6 +501,10 @@ module memory_controller ( // TODO: need to define bus lengths
         end
     end
 
+    `ifdef DV
+        `include "mem_ctrl_sva.svh"
+    `endif
+
 endmodule
 
     // INSTANTIATE ROM HERE, AND AS AN OUTPUT TAKE rgb_rom;

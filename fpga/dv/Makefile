@@ -25,6 +25,15 @@ sim_vga:
 	./$(OBJ_DIR)/V$(TOP_MODULE)
 	# gtkwave waveform.vcd
 
+prove_mem:
+	cd formal && sby -f vga_formal.sby proof
+
+sim_mem:
+	rm -rf $(OBJ_DIR)
+	verilator $(VERILATOR_FLAGS) --top-module $(TOP_MODULE) $(TB_DIR)/mem_ctrl_tb.sv $(VERILOG_SOURCES)
+	./$(OBJ_DIR)/V$(TOP_MODULE)
+	# gtkwave waveform.vcd
+
 clean:
 	rm -rf $(OBJ_DIR)
 	rm -f waveform.vcd
