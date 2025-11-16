@@ -25,7 +25,7 @@ module tb;
     // VCD trace logging
     initial begin
         $dumpfile("waveform.vcd");
-        $dumpvars(0, tb_your_design);
+        $dumpvars(0, tb);
     end
 
     // clock and reset generation
