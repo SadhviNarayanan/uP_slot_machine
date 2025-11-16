@@ -444,11 +444,13 @@ module memory_controller ( // TODO: need to define bus lengths
             x_in_sprite_r  <= 6'd0;
             y_in_sprite_r  <= 6'd0;
             inside_reel_r <= 1'b0;
+            active_video_d1 <= 1'b0;
         end else begin
             sprite_idx_r <= sprite_idx;
             x_in_sprite_r  <= x_in_sprite;
             y_in_sprite_r  <= y_in_sprite;
             inside_reel_r <= inside_reel_comb;
+            active_video_d1 <= active_video;
         end
     end
 
@@ -464,25 +466,25 @@ module memory_controller ( // TODO: need to define bus lengths
         .pixel_rgb     (rgb_rom)
     );
     
+    // pipeline to wait for one cycle latenxy in rom read for the data
     logic [2:0] rom_data_reg;
-    logic in_reel_r2;
+    logic in_reel_r2, in_reel_r3;
+    logic active_video_d3;
     always_ff @(posedge clk, negedge reset_n) begin
         if (!reset_n) begin
             rom_data_reg <= 3'b000;
             inside_reel_r2 <= 1'b0;
-        end else begin
-            rom_data_reg <= rgb_rom; // Capture BRAM output
-            inside_reel_r2 <= inside_reel_r; // Delay active area check
-        end
-    end
-
-    always_ff @(posedge clk, negedge reset_n) begin
-        if (!reset_n) begin
-            active_video_d1 <= 1'b0;
             active_video_d2 <= 1'b0;
         end else begin
-            active_video_d1 <= active_video;
-            active_video_d2 <= active_video_d1;
+            // this when we do first mem read to get the data
+            inside_reel_r2 <= inside_reel_r; 
+            active_video_d2 <= active_video_d1; // store active vudeo signal too
+
+            // this is when we get the pixel in the data which is also clocked for stability 
+            rom_data_reg <= rgb_rom; // capture BRAM output
+            in_reel_r3      <= in_reel_r2; // This is the control signal synchronized with rom_data_reg
+            active_video_d3 <= active_video_d2;
+
         end
     end
 
@@ -490,9 +492,9 @@ module memory_controller ( // TODO: need to define bus lengths
     always_ff @(posedge clk, negedge reset_n) begin
         if (!reset_n) begin
             pixel_rgb <= 3'b000; // black background color
-        end else if (active_video_d2 && inside_reel_r2) begin 
+        end else if (active_video_d3 && inside_reel_r3) begin 
             pixel_rgb <= rom_data_reg; // rbg from ROM
-        end else if (active_video_d2) begin
+        end else if (active_video_d3) begin
             pixel_rgb <= 3'b010; // background color
         end else begin
             pixel_rgb <= 3'b000; // black background color
