@@ -1,5 +1,6 @@
 module rom_wrapper (
     input  logic clk,
+	input logic reset,
     input  logic [2:0] sprite_idx,       
     input  logic [5:0] x_in_sprite,      
     input  logic [5:0] y_in_sprite,      
@@ -36,9 +37,9 @@ module rom_wrapper (
     logic [ADDRESS_WIDTH-1:0] linear_addr;
 
 
-    assign pixel_index       = (y_in_sprite * SPRITE_WIDTH) + x_in_sprite; // calcualte offset into the storage for one sprite
+    assign pixel_index       = (y_in_sprite * 64) + x_in_sprite; // calcualte offset into the storage for one sprite
     // assign word_offset       = pixel_index >> 2; // divide by 4 to get which line we are in
-	assign word_offset       = pixel_index[11:2];
+	assign word_offset       = pixel_index[11:2]; // divide by 4 to get which word
     assign pixel_in_word     = x_in_sprite[1:0]; // %4 in order to get the pixel we want in the word
 
     // address calc
@@ -54,6 +55,7 @@ module rom_wrapper (
 	
 	rom_block rom_block (
         .rd_clk_i           (clk),
+		.rst_i				(reset),
 		.rd_en_i			(1'b1),
 		.rd_clk_en_i		(1'b1),
 		.rd_addr_i			(linear_addr),
@@ -109,7 +111,7 @@ module rom_wrapper (
 			2'd1: pixel_rgb = read_word[7:5];
 			2'd2: pixel_rgb = read_word[11:9];
 			2'd3: pixel_rgb = read_word[15:13]; 
-			default: pixel_rgb = 4'b000; 
+			default: pixel_rgb = 3'b000; 
 		endcase
 	end
 
