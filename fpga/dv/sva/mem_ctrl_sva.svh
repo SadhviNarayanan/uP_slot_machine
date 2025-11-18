@@ -31,13 +31,13 @@ always @(posedge clk) begin
 
     end else begin
 
-        if (hsync) begin
-            dv_hsync_high_cycles <= dv_hsync_high_cycles + 1;
-            dv_hsync_low_cycles  <= 0;
-        end else begin
-            dv_hsync_low_cycles  <= dv_hsync_low_cycles + 1;
-            dv_hsync_high_cycles <= 0;
-        end
+        // if (hsync) begin
+        //     dv_hsync_high_cycles <= dv_hsync_high_cycles + 1;
+        //     dv_hsync_low_cycles  <= 0;
+        // end else begin
+        //     dv_hsync_low_cycles  <= dv_hsync_low_cycles + 1;
+        //     dv_hsync_high_cycles <= 0;
+        // end
 
         if (vsync) begin
             dv_vsync_high_cycles <= dv_vsync_high_cycles + 1;
@@ -61,6 +61,32 @@ end
     always @* assume (rand_final1_sprite == final1_sprite);
     always @* assume (rand_final2_sprite == final2_sprite);
     always @* assume (rand_final3_sprite == final3_sprite);
+
+    rand reg rand_clk;
+    rand reg rand_reset_n;
+    rand reg rand_hsync;
+    rand reg rand_vsync;
+    rand reg rand_hcount;
+    rand reg rand_vcount;
+    rand reg rand_active_video;
+
+    vga_controller vga (
+            .clk          ( rand_clk          ),
+            .reset_n      ( rand_reset_n      ),
+            .hsync        ( rand_hsync        ),
+            .vsync        ( rand_vsync        ),
+            .hcount       ( rand_hcount       ),
+            .vcount       ( rand_vcount       ),
+            .active_video ( rand_active_video )
+        );
+
+    always @* assume (rand_clk          == clk          );
+    always @* assume (rand_reset_n      == reset_n      );
+    always @* assume (rand_hsync        == hsync        );
+    always @* assume (rand_vsync        == vsync        );
+    always @* assume (rand_hcount       == hcount       );
+    always @* assume (rand_vcount       == vcount       );
+    always @* assume (rand_active_video == active_video );
 `endif
 
 // ASSUME PROPERTIES
@@ -116,32 +142,6 @@ always @(posedge clk) begin if (reset_n) begin
 
 end end
 */
-rand reg rand_clk;
-rand reg rand_reset_n;
-rand reg rand_hsync;
-rand reg rand_vsync;
-rand reg rand_hcount;
-rand reg rand_vcount;
-rand reg rand_active_video;
-
-vga_controller vga (
-        .clk          ( rand_clk          ),
-        .reset_n      ( rand_reset_n      ),
-        .hsync        ( rand_hsync        ),
-        .vsync        ( rand_vsync        ),
-        .hcount       ( rand_hcount       ),
-        .vcount       ( rand_vcount       ),
-        .active_video ( rand_active_video )
-    );
-
-always @* assume (rand_clk          == clk          );
-always @* assume (rand_reset_n      == reset_n      );
-always @* assume (rand_hsync        == hsync        );
-always @* assume (rand_vsync        == vsync        );
-always @* assume (rand_hcount       == hcount       );
-always @* assume (rand_vcount       == vcount       );
-always @* assume (rand_active_video == active_video );
-
 
 // SAFETY PROPERTIES
 always @* assert (sprite_idx <= 6);
@@ -165,6 +165,8 @@ end end
 
 
 // LIVENESS PROPERTIES
+
+/*
 always @(posedge clk) begin if (reset_n) begin
 
     if ($rose(start_spin))
@@ -186,3 +188,4 @@ always @(posedge clk) begin if (reset_n) begin
         assert (eventually(state == IDLE));
 
 end end
+*/

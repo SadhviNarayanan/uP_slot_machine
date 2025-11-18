@@ -1,17 +1,18 @@
 module tb;
 
-    logic        clk = 0       ;
-    logic        reset_n       ;
-    logic [10:0] hcount,       ;
-    logic [9:0]  vcount        ;
-    logic        vsync         ;
-    logic        active_video  ;
-    logic [2:0]  final1_sprite ;
-    logic [2:0]  final2_sprite ;
-    logic [2:0]  final3_sprite ;
-    logic        start_spin    ;
-    logic [2:0]  pixel_rgb     ;
-    logic        done          ;
+    logic        clk           = 0;
+    logic        reset_n       = 0;
+    logic [10:0] hcount        = 0;
+    logic [9:0]  vcount        = 0;
+    logic        vsync         = 0;
+    logic        hsync         = 0;
+    logic        active_video  = 0;
+    logic [2:0]  final1_sprite = 0;
+    logic [2:0]  final2_sprite = 0;
+    logic [2:0]  final3_sprite = 0;
+    logic        start_spin    = 0;
+    logic [2:0]  pixel_rgb     = 0;
+    logic        done          = 0;
 
     memory_controller DUT (
         .clk           (clk           ),
@@ -39,6 +40,9 @@ module tb;
     );
 
     `define DV
+    `ifndef VERILATOR
+        `define VERILATOR
+    `endif
 
     // VCD trace logging
     initial begin
@@ -55,8 +59,36 @@ module tb;
         reset_n = 0; #22 reset_n = 1;
     end
 
-    // TODO: stimulus generation goes here
+    always @(negedge vsync) $display("new frame at time %t", $time);
+
+    // stimulus generation
+    initial begin
+
+        start_spin = 0;
+
+        #55;
+        @(posedge clk);
+        start_spin = 1;
+        $display("starting first spin at time %t", $time);
+        @(posedge clk);
+        start_spin = 0;
+        wait (done);
+        $display("first spin done at time %t", $time);
+        
+        #111;
+        @(posedge clk);
+        start_spin = 1;
+        @(posedge clk);
+        start_spin = 0;
+        wait (done);
+
+        #8000;
+        @(posedge clk);
+        start_spin = 1;
+        @(posedge clk);
+        start_spin = 0;
+        wait (done);
+        
+    end
     
-
-
 endmodule
