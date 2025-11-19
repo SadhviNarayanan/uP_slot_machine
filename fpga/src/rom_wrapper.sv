@@ -1,6 +1,134 @@
+// color_sprite_rom.sv - Updated for 7 Sprites
+
 module rom_wrapper (
     input  logic clk,
-	input logic reset,
+    input  logic [2:0] sprite_sel_i,  // Sprite index (0-6)
+    input  logic [9:0] word_addr_i,   // 10-bit word address (0-1023)
+    output logic [15:0] data_o        // 16-bit word output (4 color pixels)
+);
+
+    // --- Address Decoding ---
+    logic [1:0] bram_select; // word_addr_i[9:8]: Selects which of the 4 BRAMs
+    logic [7:0] bram_addr;   // word_addr_i[7:0]: 8-bit address within the BRAM
+
+    assign bram_select = word_addr_i[9:8];
+    assign bram_addr   = word_addr_i[7:0];
+
+    // --- BRAM Output Wires ---
+    // Wires organized by sprite index (s0 to s6) and BRAM index (b0 to b3)
+    
+    // Wires for Sprite 0 (s0)
+    logic [15:0] s0_bram0_data, s0_bram1_data, s0_bram2_data, s0_bram3_data;
+    // Wires for Sprite 1 (s1)
+    logic [15:0] s1_bram0_data, s1_bram1_data, s1_bram2_data, s1_bram3_data;
+    // Wires for Sprite 2 (s2)
+    logic [15:0] s2_bram0_data, s2_bram1_data, s2_bram2_data, s2_bram3_data;
+    // Wires for Sprite 3 (s3)
+    logic [15:0] s3_bram0_data, s3_bram1_data, s3_bram2_data, s3_bram3_data;
+    // Wires for Sprite 4 (s4)
+    logic [15:0] s4_bram0_data, s4_bram1_data, s4_bram2_data, s4_bram3_data;
+    // Wires for Sprite 5 (s5)
+    logic [15:0] s5_bram0_data, s5_bram1_data, s5_bram2_data, s5_bram3_data;
+    // Wires for Sprite 6 (s6)
+    logic [15:0] s6_bram0_data, s6_bram1_data, s6_bram2_data, s6_bram3_data;
+    
+    // --- BRAM Instantiations (28 Total) ---
+    // You must ensure the memory files (e.g., "sprite6_bram3.mem") exist and contain the correct split data.
+	
+	
+    // Sprite 0 (4 BRAMs)
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom0.mem") ) s0_bram0_inst (.clk(clk), .address(bram_addr), .rgb(s0_bram0_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom1.mem") ) s0_bram1_inst (.clk(clk), .address(bram_addr), .rgb(s0_bram1_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom2.mem") ) s0_bram2_inst (.clk(clk), .address(bram_addr), .rgb(s0_bram2_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom3.mem") ) s0_bram3_inst (.clk(clk), .address(bram_addr), .rgb(s0_bram3_data) );
+    
+    // Sprite 1 (4 BRAMs)
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom0.mem") ) s1_bram0_inst (.clk(clk), .address(bram_addr), .rgb(s1_bram0_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom1.mem") ) s1_bram1_inst (.clk(clk), .address(bram_addr), .rgb(s1_bram1_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom2.mem") ) s1_bram2_inst (.clk(clk), .address(bram_addr), .rgb(s1_bram2_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom3.mem") ) s1_bram3_inst (.clk(clk), .address(bram_addr), .rgb(s1_bram3_data) );
+
+    // Sprite 2 (4 BRAMs)
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom0.mem") ) s2_bram0_inst (.clk(clk), .address(bram_addr), .rgb(s2_bram0_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom1.mem") ) s2_bram1_inst (.clk(clk), .address(bram_addr), .rgb(s2_bram1_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom2.mem") ) s2_bram2_inst (.clk(clk), .address(bram_addr), .rgb(s2_bram2_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom3.mem") ) s2_bram3_inst (.clk(clk), .address(bram_addr), .rgb(s2_bram3_data) );
+
+    // Sprite 3 (4 BRAMs)
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom0.mem") ) s3_bram0_inst (.clk(clk), .address(bram_addr), .rgb(s3_bram0_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom1.mem") ) s3_bram1_inst (.clk(clk), .address(bram_addr), .rgb(s3_bram1_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom2.mem") ) s3_bram2_inst (.clk(clk), .address(bram_addr), .rgb(s3_bram2_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom3.mem") ) s3_bram3_inst (.clk(clk), .address(bram_addr), .rgb(s3_bram3_data) );
+
+    // Sprite 4 (4 BRAMs)
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom0.mem") ) s4_bram0_inst (.clk(clk), .address(bram_addr), .rgb(s4_bram0_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom1.mem") ) s4_bram1_inst (.clk(clk), .address(bram_addr), .rgb(s4_bram1_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom2.mem") ) s4_bram2_inst (.clk(clk), .address(bram_addr), .rgb(s4_bram2_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom3.mem") ) s4_bram3_inst (.clk(clk), .address(bram_addr), .rgb(s4_bram3_data) );
+
+    // Sprite 5 (4 BRAMs)
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom0.mem") ) s5_bram0_inst (.clk(clk), .address(bram_addr), .rgb(s5_bram0_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom1.mem") ) s5_bram1_inst (.clk(clk), .address(bram_addr), .rgb(s5_bram1_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom2.mem") ) s5_bram2_inst (.clk(clk), .address(bram_addr), .rgb(s5_bram2_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom3.mem") ) s5_bram3_inst (.clk(clk), .address(bram_addr), .rgb(s5_bram3_data) );
+
+    // Sprite 6 (4 BRAMs)
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom0.mem") ) s6_bram0_inst (.clk(clk), .address(bram_addr), .rgb(s6_bram0_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom1.mem") ) s6_bram1_inst (.clk(clk), .address(bram_addr), .rgb(s6_bram1_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom2.mem") ) s6_bram2_inst (.clk(clk), .address(bram_addr), .rgb(s6_bram2_data) );
+    rom_block2 #( .text_file("/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom3.mem") ) s6_bram3_inst (.clk(clk), .address(bram_addr), .rgb(s6_bram3_data) );
+
+
+    // --- Data Selection (Combinational Mux) ---
+    logic [15:0] selected_word;
+    
+    always_comb begin
+        unique case (sprite_sel_i)
+            3'd0: begin
+                unique case (bram_select) 2'd0: selected_word = s0_bram0_data; 2'd1: selected_word = s0_bram1_data; 2'd2: selected_word = s0_bram2_data; 2'd3: selected_word = s0_bram3_data; default: selected_word = 16'h0000; endcase
+            end
+            3'd1: begin
+                unique case (bram_select) 2'd0: selected_word = s1_bram0_data; 2'd1: selected_word = s1_bram1_data; 2'd2: selected_word = s1_bram2_data; 2'd3: selected_word = s1_bram3_data; default: selected_word = 16'h0000; endcase
+            end
+            3'd2: begin
+                unique case (bram_select) 2'd0: selected_word = s2_bram0_data; 2'd1: selected_word = s2_bram1_data; 2'd2: selected_word = s2_bram2_data; 2'd3: selected_word = s2_bram3_data; default: selected_word = 16'h0000; endcase
+            end
+            3'd3: begin
+                unique case (bram_select) 2'd0: selected_word = s3_bram0_data; 2'd1: selected_word = s3_bram1_data; 2'd2: selected_word = s3_bram2_data; 2'd3: selected_word = s3_bram3_data; default: selected_word = 16'h0000; endcase
+            end
+            3'd4: begin
+                unique case (bram_select) 2'd0: selected_word = s4_bram0_data; 2'd1: selected_word = s4_bram1_data; 2'd2: selected_word = s4_bram2_data; 2'd3: selected_word = s4_bram3_data; default: selected_word = 16'h0000; endcase
+            end
+            3'd5: begin
+                unique case (bram_select) 2'd0: selected_word = s5_bram0_data; 2'd1: selected_word = s5_bram1_data; 2'd2: selected_word = s5_bram2_data; 2'd3: selected_word = s5_bram3_data; default: selected_word = 16'h0000; endcase
+            end
+            3'd6: begin
+                unique case (bram_select) 2'd0: selected_word = s6_bram0_data; 2'd1: selected_word = s6_bram1_data; 2'd2: selected_word = s6_bram2_data; 2'd3: selected_word = s6_bram3_data; default: selected_word = 16'h0000; endcase
+            end
+            default: selected_word = 16'h0000; 
+        endcase
+    end
+    
+    // The output is synchronous (1-cycle latency) because it's the registered output of the rom_block via a combinational mux.
+	logic [15:0] data_o_reg;
+	
+	always_ff @(posedge clk) begin
+		data_o_reg <= selected_word;
+	end
+	
+    assign data_o = data_o_reg; //16'h2228; 
+    
+endmodule
+
+
+
+
+
+
+/*
+module rom_wrapper (
+    input  logic clk,
+    input  logic reset,
     input  logic [2:0] sprite_idx,       
     input  logic [5:0] x_in_sprite,      
     input  logic [5:0] y_in_sprite,      
@@ -9,399 +137,53 @@ module rom_wrapper (
 
     localparam SPRITE_WIDTH = 64;
     localparam DATA_WIDTH = 16;
-    localparam TOTAL_WORDS = 7 * 4 * 256; // 7168 words total
-    localparam ADDRESS_WIDTH = 13;        // 13 bits for 7168 words
+    localparam ADDRESS_WIDTH = 13;
     
-	/*
-	(* ram_style = "block" *) 
-    logic [DATA_WIDTH-1:0] single_bram2 [0:256-1]; 
-	
-	
-    // forcing to use bram
-    (* ram_style = "block" *) 
-    logic [DATA_WIDTH-1:0] single_bram [0:TOTAL_WORDS-1]; 
-
-    // NOTE: need a file with "all_sprites_combined.mem" (7168 lines) --> should have all the sprites in 1 hopefully it uses 28 bram blcocks
-    initial begin
-        $readmemh("sprite_combined_7_sprites.mem", single_bram); 
-		$readmemh("sprite_rom0.mem", single_bram2);
-    end
-	*/
-
-    // calculate the index offsets
-    logic [11:0] pixel_index; // which pixel we want for a sprite       
-    logic [9:0] word_offset; // which word line are we in      
-    logic [4:0] sprite_bram_index;  // which bram block
-    logic [7:0] bram_addr; // address in bram        
-    logic [1:0] pixel_in_word;   // finally which pixel   
+    // Cycle 0: Address calculation (combinational)
+    logic [11:0] pixel_index;
+    logic [9:0] word_offset;
     logic [ADDRESS_WIDTH-1:0] linear_addr;
+    logic [1:0] pixel_in_word;
 
+    assign pixel_index = (y_in_sprite * 64) + x_in_sprite;
+    assign word_offset = pixel_index[11:2];
+    assign pixel_in_word = x_in_sprite[1:0];
+    assign linear_addr = (sprite_idx << 10) | word_offset;
 
-    assign pixel_index       = (y_in_sprite * 64) + x_in_sprite; // calcualte offset into the storage for one sprite
-    // assign word_offset       = pixel_index >> 2; // divide by 4 to get which line we are in
-	assign word_offset       = pixel_index[11:2]; // divide by 4 to get which word
-    assign pixel_in_word     = x_in_sprite[1:0]; // %4 in order to get the pixel we want in the word
-
-    // address calc
-    assign sprite_bram_index = (sprite_idx << 2) | (word_offset[9:8]); // take the sprite index * 4 (since 4 blocks per sprite) + (word % 4_rom_blocks) so we get which block to go into
-    assign bram_addr         = word_offset[7:0];   
-    // assign linear_addr       = (sprite_bram_index << 8) | bram_addr; // form 16 bit address
-	assign linear_addr = (sprite_idx << 10) | word_offset; // 13'd6142; //(sprite_idx << 10) | word_offset; // --. wrong: 13'd2176; shld be all green
-
-
-    // register for storing pipelined stages
-    logic [DATA_WIDTH-1:0] read_word, read_word2, read_word3; 
-    logic [1:0] r_pixel_in_word; 
-	
-	rom_block rom_block (
-        .rd_clk_i           (clk),
-		.rst_i				(),
-		.rd_en_i			(1'b1),
-		.rd_clk_en_i		(1'b1),
-		.rd_addr_i			(linear_addr),
-        .rd_data_o     (read_word)
-    );
-	
-	
-	/*
-	rom_block  #(
-		.text_file("sprite_rom0.mem")
-    ) rom_block (
-        .clk           (clk),
-        .address		(linear_addr),
-        .rgb     (read_word)
-    );
-	
-	rom_block   #(
-		.text_file("sprite_rom1.mem")
-    ) rom_block2 (
-        .clk           (clk),
-        .address		(linear_addr),
-        .rgb     (read_word2)
-    );
-	
-	rom_block  #(
-		.text_file("sprite_rom2.mem")
-    ) rom_block3 (
-        .clk           (clk),
-        .address		(linear_addr),
-        .rgb     (read_word3)
-    );
-	*/
+    // Cycle 1: ROM IP reads (has internal register)
+    logic [DATA_WIDTH-1:0] read_word;
     
-    // syncing
+    rom_block rom_block (
+        .rd_clk_i(clk),
+        .rst_i(),
+        .rd_en_i(1'b1),
+        .rd_clk_en_i(1'b1),
+        .rd_addr_i(linear_addr),
+        .rd_data_o(read_word)  // Available in Cycle 1
+    );
+    
+    // Cycle 1: Register BOTH data and pixel selector TOGETHER
+    // This keeps them synchronized!
+    logic [DATA_WIDTH-1:0] read_word_reg;
+    logic [1:0] r_pixel_in_word;
+    
     always_ff @(posedge clk) begin
-        
-        // stage 1 - use stable inputs for rom block --> want to make it stabel for a clk
-        //read_word      <= single_bram[linear_addr]; 
-		//read_word2 <= single_bram2[linear_addr];
-        r_pixel_in_word  <= pixel_in_word; 
-
-        // stage 2 - 
-        // moved this in here to make sure we also have to time to safely get a sifnal on the output
-        // this will help avoud any hold time conflicts of data changing too fast before the captyre flop in the mem contrller
-		// based on which pixel we want, choose the bits
-		// but we still only want 3 bits even tho we are storing it as 4 --> doing this for smoother calculations
-
+        read_word_reg <= read_word;         // Data from ROM IP
+        r_pixel_in_word <= pixel_in_word;   // Selector (same cycle as linear_addr was generated)
     end
-	
-	always_comb begin
-		case (r_pixel_in_word)
-			2'd0: pixel_rgb = read_word[15:13]; //& read_word2[3:1] & read_word3[3:1];
-			2'd1: pixel_rgb = read_word[11:9];
-			2'd2: pixel_rgb = read_word[7:5];
-			2'd3: pixel_rgb = read_word[3:1]; 
-			default: pixel_rgb = 3'b000; 
-		endcase
-	end
-
+    
+    // Cycle 2: Extract the correct pixel (combinational)
+    // Now read_word_reg and r_pixel_in_word are from the SAME original cycle!
+    always_comb begin
+        case (r_pixel_in_word)
+            2'd0: pixel_rgb = read_word_reg[15:13];
+            2'd1: pixel_rgb = read_word_reg[11:9];
+            2'd2: pixel_rgb = read_word_reg[7:5];
+            2'd3: pixel_rgb = read_word_reg[3:1]; 
+            default: pixel_rgb = 3'b000; 
+        endcase
+    end
 
 endmodule
 
-
-
-
-
-
-
-
-
-
-
-
-// module rom_wrapper (
-//     input  logic clk,
-//     input  logic [2:0] sprite_idx,       // 0-6 for 7 sprites
-//     input  logic [5:0] x_in_sprite,      // 0-63
-//     input  logic [5:0] y_in_sprite,      // 0-63
-//     output logic [2:0] pixel_rgb         // 3-bit RGB output
-// );
-
-//     localparam SPRITE_WIDTH = 64;
-//     localparam SPRITE_HEIGHT = 64;
-    
-//     // --- 1. Explicit Memory Declarations (28 Separate 1D Arrays) ---
-//     // This is the key change: replacing the single 2D array with 28 separate 1D arrays
-//     logic [15:0] s0_bram0 [0:255]; 
-//     logic [15:0] s0_bram1 [0:255]; 
-//     logic [15:0] s0_bram2 [0:255]; 
-//     logic [15:0] s0_bram3 [0:255];
-
-//     logic [15:0] s1_bram0 [0:255]; 
-//     logic [15:0] s1_bram1 [0:255];
-//     logic [15:0] s1_bram2 [0:255]; 
-//     logic [15:0] s1_bram3 [0:255];
-
-//     logic [15:0] s2_bram0 [0:255]; 
-//     logic [15:0] s2_bram1 [0:255];
-//     logic [15:0] s2_bram2 [0:255]; 
-//     logic [15:0] s2_bram3 [0:255];
-
-//     logic [15:0] s3_bram0 [0:255]; 
-//     logic [15:0] s3_bram1 [0:255];
-//     logic [15:0] s3_bram2 [0:255]; 
-//     logic [15:0] s3_bram3 [0:255];
-
-//     logic [15:0] s4_bram0 [0:255]; 
-//     logic [15:0] s4_bram1 [0:255];
-//     logic [15:0] s4_bram2 [0:255]; 
-//     logic [15:0] s4_bram3 [0:255];
-
-//     logic [15:0] s5_bram0 [0:255]; 
-//     logic [15:0] s5_bram1 [0:255];
-//     logic [15:0] s5_bram2 [0:255]; 
-//     logic [15:0] s5_bram3 [0:255];
-
-//     logic [15:0] s6_bram0 [0:255]; 
-//     logic [15:0] s6_bram1 [0:255];
-//     logic [15:0] s6_bram2 [0:255]; 
-//     logic [15:0] s6_bram3 [0:255];
-
-
-//     // --- 2. Memory Initialization (28 Separate $readmemh calls) ---
-//     initial begin
-//         $readmemh("sprite0_bram0.mem", s0_bram0); $readmemh("sprite0_bram1.mem", s0_bram1);
-//         $readmemh("sprite0_bram2.mem", s0_bram2); $readmemh("sprite0_bram3.mem", s0_bram3);
-        
-//         $readmemh("sprite1_bram0.mem", s1_bram0); $readmemh("sprite1_bram1.mem", s1_bram1);
-//         $readmemh("sprite1_bram2.mem", s1_bram2); $readmemh("sprite1_bram3.mem", s1_bram3);
-        
-//         $readmemh("sprite2_bram0.mem", s2_bram0); $readmemh("sprite2_bram1.mem", s2_bram1);
-//         $readmemh("sprite2_bram2.mem", s2_bram2); $readmemh("sprite2_bram3.mem", s2_bram3);
-        
-//         $readmemh("sprite3_bram0.mem", s3_bram0); $readmemh("sprite3_bram1.mem", s3_bram1);
-//         $readmemh("sprite3_bram2.mem", s3_bram2); $readmemh("sprite3_bram3.mem", s3_bram3);
-        
-//         $readmemh("sprite4_bram0.mem", s4_bram0); $readmemh("sprite4_bram1.mem", s4_bram1);
-//         $readmemh("sprite4_bram2.mem", s4_bram2); $readmemh("sprite4_bram3.mem", s4_bram3);
-        
-//         $readmemh("sprite5_bram0.mem", s5_bram0); $readmemh("sprite5_bram1.mem", s5_bram1);
-//         $readmemh("sprite5_bram2.mem", s5_bram2); $readmemh("sprite5_bram3.mem", s5_bram3);
-        
-//         $readmemh("sprite6_bram0.mem", s6_bram0); $readmemh("sprite6_bram1.mem", s6_bram1);
-//         $readmemh("sprite6_bram2.mem", s6_bram2); $readmemh("sprite6_bram3.mem", s6_bram3);
-//     end
-    
-//     // --- 3. Combinational Address and Index Calculations ---
-    
-//     // Pixel index (0-4095)
-//     logic [11:0] pixel_index;
-//     assign pixel_index = (y_in_sprite * SPRITE_WIDTH) + x_in_sprite;
-    
-//     // Word offset (0-818) -> 4096 / 5 = 819 words needed, 819-1 = 818
-//     logic [11:0] word_offset;
-//     assign word_offset = pixel_index / 5;
-    
-//     // BRAM offset (0-3) - MSBs of the word offset. Since 4 BRAMs * 256 words = 1024 words, 
-//     // we use word_offset[9:8] (10 bits for 1024 words).
-//     logic [1:0] bram_offset;    
-//     assign bram_offset = word_offset[9:8];
-    
-//     // Address within that BRAM (0-255) - LSBs of the word offset
-//     logic [7:0] bram_addr;
-//     assign bram_addr = word_offset[7:0];    
-    
-//     // Pixel index within the word (0-4)
-//     logic [2:0] pixel_in_word;
-//     assign pixel_in_word = pixel_index % 5;
-
-
-//     // --- 4. Read Logic: Selection and Synchronous Read ---
-    
-//     // Temporary signal for the data word read from the selected BRAM
-//     logic [15:0] read_word;
-    
-//     // Combinational logic to select the correct BRAM using a case statement
-//     always_comb begin
-//         read_word = 16'h0000; // Default output
-        
-//         // This large case statement replaces the array indexing: bram[bram_index][bram_addr]
-//         unique case ({sprite_idx, bram_offset})
-//             // Sprite 0 (sprite_idx=0, bram_offset=0-3)
-//             3'd0, 2'b00: read_word = s0_bram0[bram_addr];
-//             3'd0, 2'b01: read_word = s0_bram1[bram_addr];
-//             3'd0, 2'b10: read_word = s0_bram2[bram_addr];
-//             3'd0, 2'b11: read_word = s0_bram3[bram_addr];
-            
-//             // Sprite 1 (sprite_idx=1, bram_offset=0-3)
-//             3'd1, 2'b00: read_word = s1_bram0[bram_addr];
-//             3'd1, 2'b01: read_word = s1_bram1[bram_addr];
-//             3'd1, 2'b10: read_word = s1_bram2[bram_addr];
-//             3'd1, 2'b11: read_word = s1_bram3[bram_addr];
-            
-//             // Sprite 2
-//             3'd2, 2'b00: read_word = s2_bram0[bram_addr];
-//             3'd2, 2'b01: read_word = s2_bram1[bram_addr];
-//             3'd2, 2'b10: read_word = s2_bram2[bram_addr];
-//             3'd2, 2'b11: read_word = s2_bram3[bram_addr];
-            
-//             // Sprite 3
-//             3'd3, 2'b00: read_word = s3_bram0[bram_addr];
-//             3'd3, 2'b01: read_word = s3_bram1[bram_addr];
-//             3'd3, 2'b10: read_word = s3_bram2[bram_addr];
-//             3'd3, 2'b11: read_word = s3_bram3[bram_addr];
-            
-//             // Sprite 4
-//             3'd4, 2'b00: read_word = s4_bram0[bram_addr];
-//             3'd4, 2'b01: read_word = s4_bram1[bram_addr];
-//             3'd4, 2'b10: read_word = s4_bram2[bram_addr];
-//             3'd4, 2'b11: read_word = s4_bram3[bram_addr];
-            
-//             // Sprite 5
-//             3'd5, 2'b00: read_word = s5_bram0[bram_addr];
-//             3'd5, 2'b01: read_word = s5_bram1[bram_addr];
-//             3'd5, 2'b10: read_word = s5_bram2[bram_addr];
-//             3'd5, 2'b11: read_word = s5_bram3[bram_addr];
-            
-//             // Sprite 6
-//             3'd6, 2'b00: read_word = s6_bram0[bram_addr];
-//             3'd6, 2'b01: read_word = s6_bram1[bram_addr];
-//             3'd6, 2'b10: read_word = s6_bram2[bram_addr];
-//             3'd6, 2'b11: read_word = s6_bram3[bram_addr];
-            
-//             default: read_word = 16'h0000;
-//         endcase
-//     end
-    
-//     // Synchronous output registration and pixel extraction
-//     always_ff @(posedge clk) begin
-//         // Extract the right 3-bit pixel from the word read in the previous cycle
-//         // Word format: [15]=unused, [14:12]=pix4, [11:9]=pix3, [8:6]=pix2, [5:3]=pix1, [2:0]=pix0
-//         case (pixel_in_word)
-//             3'd0: pixel_rgb <= read_word[2:0];
-//             3'd1: pixel_rgb <= read_word[5:3];
-//             3'd2: pixel_rgb <= read_word[8:6];
-//             3'd3: pixel_rgb <= read_word[11:9]; 
-//             3'd4: pixel_rgb <= read_word[14:12];
-//             default: pixel_rgb <= 3'b000;
-//         endcase
-//     end
-
-// endmodule
-
-
-
-
-// // module rom_wrapper (
-// //     input  logic clk,
-// //     input  logic [2:0] sprite_idx,       // 0-6 for 7 sprites
-// //     input  logic [5:0] x_in_sprite,      // 0-63
-// //     input  logic [5:0] y_in_sprite,      // 0-63
-// //     output logic [2:0] pixel_rgb         // 3-bit RGB output
-// // );
-
-// //     localparam SPRITE_WIDTH = 64;
-// //     localparam SPRITE_HEIGHT = 64;
-
-// //     // 28 BRAMs total (4 per sprite Ã— 7 sprites)
-// //     // Each word stores 5 pixels (5 Ã— 3 = 15 bits, 1 bit unused)
-// //     logic [15:0] bram [0:27][0:255]; // 256x16 BRAMS -- 256 lines, 16bit words
-    
-// //     // Load sprite data
-// //     initial begin
-// //         $readmemh("sprite0_bram0.mem", bram[0]);
-// //         $readmemh("sprite0_bram1.mem", bram[1]);
-// //         $readmemh("sprite0_bram2.mem", bram[2]);
-// //         $readmemh("sprite0_bram3.mem", bram[3]);
-        
-// //         $readmemh("sprite1_bram0.mem", bram[4]);
-// //         $readmemh("sprite1_bram1.mem", bram[5]);
-// //         $readmemh("sprite1_bram2.mem", bram[6]);
-// //         $readmemh("sprite1_bram3.mem", bram[7]);
-        
-// //         $readmemh("sprite2_bram0.mem", bram[8]);
-// //         $readmemh("sprite2_bram1.mem", bram[9]);
-// //         $readmemh("sprite2_bram2.mem", bram[10]);
-// //         $readmemh("sprite2_bram3.mem", bram[11]);
-        
-// //         $readmemh("sprite3_bram0.mem", bram[12]);
-// //         $readmemh("sprite3_bram1.mem", bram[13]);
-// //         $readmemh("sprite3_bram2.mem", bram[14]);
-// //         $readmemh("sprite3_bram3.mem", bram[15]);
-        
-// //         $readmemh("sprite4_bram0.mem", bram[16]);
-// //         $readmemh("sprite4_bram1.mem", bram[17]);
-// //         $readmemh("sprite4_bram2.mem", bram[18]);
-// //         $readmemh("sprite4_bram3.mem", bram[19]);
-        
-// //         $readmemh("sprite5_bram0.mem", bram[20]);
-// //         $readmemh("sprite5_bram1.mem", bram[21]);
-// //         $readmemh("sprite5_bram2.mem", bram[22]);
-// //         $readmemh("sprite5_bram3.mem", bram[23]);
-        
-// //         $readmemh("sprite6_bram0.mem", bram[24]);
-// //         $readmemh("sprite6_bram1.mem", bram[25]);
-// //         $readmemh("sprite6_bram2.mem", bram[26]);
-// //         $readmemh("sprite6_bram3.mem", bram[27]);
-// //     end
-    
-// //     // Calculate pixel index within sprite (0-4095)
-// //     // NOTE: this is just for pixels of which there are 4096 - each of these have 3 bits for rgb which are stored in memory hence we need 4
-// //     // so when are doing calcualtions we want to treat it as pixels and not bits - hence we abstract away each bit (treat as 5 insted of 5*3=15 for example)
-// //     logic [11:0] pixel_index;
-// //     assign pixel_index = (y_in_sprite * SPRITE_WIDTH) + x_in_sprite;
-// //     // Example: y=2, x=25 â†’ pixel_index = 2*64 + 25 = 153
-    
-// //     // Divide by 5 to get word offset within sprite -- which word line??
-// //     logic [11:0] word_offset;
-// //     assign word_offset = pixel_index / 5;
-    
-// //     // Which of the 4 BRAMs for this sprite? --> got which word line its own, now need to see which block this wordline belowngs to
-// //     logic [1:0] bram_offset;    // 0-3
-// //     assign bram_offset = word_offset[9:8];  // word_offset / 256 --> essetnailly dividing pixel_index / (# of pixels in a block), where # of pixels in a block is number of words * 5 = 256 * 5 (since 5 pixels in a word line)
-    
-// //     // Address within that BRAM
-// //     logic [7:0] bram_addr;
-// //     assign bram_addr = word_offset[7:0];    // word_offset % 256 --> remainder of the division above, essentiallu tells us spill over into RAM block since it doesn't alsways divide eprfectly into a block   
-
-// //     // Absolute BRAM index (0-27)
-// //     logic [4:0] bram_index;
-// //     assign bram_index = (sprite_idx << 2) + bram_offset;  // sprite_idx * 4 + bram_offset --> since each index gets 4 blocks
-    
-// //     // Which of 5 pixels in the word?
-// //     logic [2:0] pixel_in_word;
-// //     assign pixel_in_word = pixel_index % 5;
-
-
-    
-// //     logic [15:0] selected_word;
-    
-// //     always_ff @(posedge clk) begin
-// //         // Read from the calculated BRAM and address
-// //         selected_word <= bram[bram_index][bram_addr];
-        
-// //         // Extract the right 3-bit pixel from the word
-// //         // Word format: [15]=unused, [14:12]=pix4, [11:9]=pix3, [8:6]=pix2, [5:3]=pix1, [2:0]=pix0
-// //         case (pixel_in_word)
-// //             3'd0: pixel_rgb <= selected_word[2:0];
-// //             3'd1: pixel_rgb <= selected_word[5:3];
-// //             3'd2: pixel_rgb <= selected_word[8:6];
-// //             3'd3: pixel_rgb <= selected_word[11:9]; 
-// //             3'd4: pixel_rgb <= selected_word[14:12];
-// //             default: pixel_rgb <= 3'b000;
-// //         endcase
-// //     end
-
-// // endmodule
-
-
+*/
