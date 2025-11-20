@@ -401,12 +401,12 @@ module memory_controller (
 
     // --- Pipeline Stage 1 (Clock Edge N+2) ---
     // Register ROM output and delay control signals (Total Data Path: 2 Cycles)
-    logic [15:0] rom_data_r, rom_data_r2;
-    logic [1:0] pixel_in_word_r2, pixel_in_word_r3; // Final pixel selector (2-cycle delay)
+    logic [15:0] rom_data_r, rom_data_r2, rom_data_r3;
+    logic [1:0] pixel_in_word_r2, pixel_in_word_r3, pixel_in_word_r4; // Final pixel selector (2-cycle delay)
 
     // Control signal pipeline (Delayed by 2 cycles, this is your working 'r2' path)
-    logic inside_reel_r2, inside_reel_r3;
-    logic active_video_d2, active_video_d3;
+    logic inside_reel_r2, inside_reel_r3, inside_reel_r4;
+    logic active_video_d2, active_video_d3, active_video_d4;
 
     always_ff @(posedge clk, negedge reset_n) begin
         if (!reset_n) begin
@@ -425,6 +425,11 @@ module memory_controller (
 			rom_data_r2 <= rom_data_r;
 			active_video_d3 <= active_video_d2;
 			inside_reel_r3 <= inside_reel_r2;
+			
+			pixel_in_word_r4 <= pixel_in_word_r3;
+			rom_data_r3 <= rom_data_r2;
+			active_video_d4 <= active_video_d3;
+			inside_reel_r4 <= inside_reel_r3;
         end
     end
 
@@ -444,8 +449,8 @@ module memory_controller (
 
 	// --- Output (use r3 signals) ---
 	always_comb begin 
-		if (active_video_d3) begin  // â­ Changed from d2 to d3
-			if (inside_reel_r3) begin  // â­ Changed from r2 to r3
+		if (active_video_d3) begin 
+			if (inside_reel_r3) begin  
 				pixel_rgb = sprite_pixel_color;
 			end else begin
 				pixel_rgb = 3'b111;
