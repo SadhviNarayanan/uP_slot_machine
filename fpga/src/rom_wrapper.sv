@@ -1,3 +1,4 @@
+
 module rom_wrapper (
     input  logic clk,
     input  logic [2:0] sprite_sel_i,  // Sprite index (0-6)
@@ -5,7 +6,7 @@ module rom_wrapper (
     output logic [15:0] data_o        // 16-bit word output (4 color pixels)
 );
 
-    /* internal logic declarations */
+    // internal logic declarations 
     
     // bram read
     logic [15:0] r1_data         ;
@@ -61,23 +62,23 @@ module rom_wrapper (
     logic        r14_en, r14_en_dly  ;
     logic        r15_en, r15_en_dly  ;
     logic        r16_en, r16_en_dly  ;
-    logic        r17_en, r17_en_dly  ;
-    logic        r18_en, r18_en_dly  ;
-    logic        r19_en, r19_en_dly  ;
-    logic        r20_en, r20_en_dly  ;
-    logic        r21_en, r21_en_dly  ;
-    logic        r22_en, r22_en_dly  ;
-    logic        r23_en, r23_en_dly  ;
-    logic        r24_en, r24_en_dly  ;
-    logic        r25_en, r25_en_dly  ;
-    logic        r26_en, r26_en_dly  ;
-    logic        r27_en, r27_en_dly  ;
-    logic        r28_en, r28_en_dly  ;
+    (* keep = "true" *) logic        r17_en, r17_en_dly  ;
+    (* keep = "true" *) logic        r18_en, r18_en_dly  ;
+    (* keep = "true" *) logic        r19_en, r19_en_dly  ;
+    (* keep = "true" *) logic        r20_en, r20_en_dly  ;
+    (* keep = "true" *) logic        r21_en, r21_en_dly  ;
+    (* keep = "true" *) logic        r22_en, r22_en_dly  ;
+    (* keep = "true" *) logic        r23_en, r23_en_dly  ;
+    (* keep = "true" *) logic        r24_en, r24_en_dly  ;
+    (* keep = "true" *) logic        r25_en, r25_en_dly  ;
+    (* keep = "true" *) logic        r26_en, r26_en_dly  ;
+    (* keep = "true" *) logic        r27_en, r27_en_dly  ;
+    (* keep = "true" *) logic        r28_en, r28_en_dly  ;
 
     assign bram_addr = word_addr_i[7:0];
     assign bram_sel  = word_addr_i[9:8];
 
-    /* enable logic */
+    // enable logic 
     assign r1_en  = sprite_sel_i == 3'd0 && bram_sel == 2'd0 ;
     assign r2_en  = sprite_sel_i == 3'd0 && bram_sel == 2'd1 ;
     assign r3_en  = sprite_sel_i == 3'd0 && bram_sel == 2'd2 ;
@@ -137,7 +138,13 @@ module rom_wrapper (
     r15 r15_ip ( .rd_clk_i(clk), .rst_i(1'b0), .rd_en_i(r15_en), .rd_clk_en_i(1'b1), .rd_addr_i(bram_addr), .rd_data_o(r15_data) );
     r16 r16_ip ( .rd_clk_i(clk), .rst_i(1'b0), .rd_en_i(r16_en), .rd_clk_en_i(1'b1), .rd_addr_i(bram_addr), .rd_data_o(r16_data) );
 
-    // // Bank E
+    rom_block2 #(.text_file("C:/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom20.mem")) r17_inst (.clk(clk), .address(bram_addr), .dout(r17_data));
+    rom_block2 #(.text_file("C:/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom21.mem")) r18_inst (.clk(clk), .address(bram_addr), .dout(r18_data));
+    rom_block2 #(.text_file("C:/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom22.mem")) r19_inst (.clk(clk), .address(bram_addr), .dout(r19_data));
+    rom_block2 #(.text_file("C:/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom23.mem")) r20_inst (.clk(clk), .address(bram_addr), .dout(r20_data));
+    
+
+    // // // Bank E
     // r17 r17_ip  ( .rd_clk_i(clk), .rst_i(1'b0), .rd_en_i(r17_en), .rd_clk_en_i(1'b1), .rd_addr_i(bram_addr), .rd_data_o(r17_data ) );
     // r18 r18_ip  ( .rd_clk_i(clk), .rst_i(1'b0), .rd_en_i(r18_en), .rd_clk_en_i(1'b1), .rd_addr_i(bram_addr), .rd_data_o(r18_data ) );
     // r19 r19_ip  ( .rd_clk_i(clk), .rst_i(1'b0), .rd_en_i(r19_en), .rd_clk_en_i(1'b1), .rd_addr_i(bram_addr), .rd_data_o(r19_data ) );
@@ -155,7 +162,7 @@ module rom_wrapper (
     // r27  r27_ip  ( .rd_clk_i(clk), .rst_i(1'b0), .rd_en_i(r27_en), .rd_clk_en_i(1'b1), .rd_addr_i(bram_addr), .rd_data_o(r27_data ) );
     // r28  r28_ip  ( .rd_clk_i(clk), .rst_i(1'b0), .rd_en_i(r28_en), .rd_clk_en_i(1'b1), .rd_addr_i(bram_addr), .rd_data_o(r28_data ) );
 
-    /* ram block enable delay */
+    // ram block enable delay
 
     always_ff @(posedge clk) begin
 
@@ -209,10 +216,12 @@ module rom_wrapper (
             r14_en_dly: reduced_rdata = r14_data;
             r15_en_dly: reduced_rdata = r15_data;
             r16_en_dly: reduced_rdata = r16_data;
-            // r17_en_dly: reduced_rdata = r17_data;
-            // r18_en_dly: reduced_rdata = r18_data;
-            // r19_en_dly: reduced_rdata = r19_data;
-            // r20_en_dly: reduced_rdata = r20_data;
+
+            r17_en_dly: reduced_rdata = r17_data;
+            r18_en_dly: reduced_rdata = r18_data;
+            r19_en_dly: reduced_rdata = r19_data;
+            r20_en_dly: reduced_rdata = r20_data;
+
             // r21_en_dly: reduced_rdata = r21_data;
             // r22_en_dly: reduced_rdata = r22_data;
             // r23_en_dly: reduced_rdata = r23_data;
@@ -233,7 +242,6 @@ module rom_wrapper (
     assign data_o = data_o_reg;
     
 endmodule
-
 
 /*
 module rom_wrapper (
