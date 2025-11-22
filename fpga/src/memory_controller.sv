@@ -394,6 +394,7 @@ module memory_controller (
     // ROM Instantiation (Synchronous Read, 1-cycle latency)
     rom_wrapper rom_inst (
         .clk(clk),
+		.reset_n(reset_n),
         .sprite_sel_i(sprite_idx_r), 
         .word_addr_i(word_addr_r),   
         .data_o(rom_data)            // Data available at N+1
@@ -416,6 +417,11 @@ module memory_controller (
 			
 			rom_data_r2 <= 16'd0; pixel_in_word_r3 <= 2'd0;
 			inside_reel_r3 <= 1'b0; active_video_d3 <= 1'b0;
+			
+			sprite_idx_r3 <= 0;
+			
+			pixel_in_word_r4 <= 0;
+			sprite_idx_r4 <= 0;
 			
 			pixel_in_word_r5 <= 0;
 			active_video_d5 <= 0;
@@ -459,24 +465,24 @@ module memory_controller (
 	logic [2:0] sprite_pixel_color;
 
 	always_comb begin
-		case (sprite_idx_r6)
+		case (sprite_idx_r4)
 			3'd0, 3'd1, 3'd2, 3'd3: begin
 				// EBR sprites: use rom_data_r2 (3 total pipeline stages match)
-				case (pixel_in_word_r6) 
-					2'd0: sprite_pixel_color = rom_data_r2[15:13]; 
-					2'd1: sprite_pixel_color = rom_data_r2[11:9];
-					2'd2: sprite_pixel_color = rom_data_r2[7:5];
-					2'd3: sprite_pixel_color = rom_data_r2[3:1];
+				case (pixel_in_word_r4) 
+					2'd0: sprite_pixel_color = rom_data[15:13]; 
+					2'd1: sprite_pixel_color = rom_data[11:9];
+					2'd2: sprite_pixel_color = rom_data[7:5];
+					2'd3: sprite_pixel_color = rom_data[3:1];
 					default: sprite_pixel_color = 3'b000; 
 				endcase
 			end
 			3'd4, 3'd5, 3'd6: begin
 				// Combinational sprites: use rom_data_r3 (need extra delay)
-				case (pixel_in_word_r6) 
-					2'd0: sprite_pixel_color = rom_data_r3[15:13]; 
-					2'd1: sprite_pixel_color = rom_data_r3[11:9];
-					2'd2: sprite_pixel_color = rom_data_r3[7:5];
-					2'd3: sprite_pixel_color = rom_data_r3[3:1];
+				case (pixel_in_word_r4) 
+					2'd0: sprite_pixel_color = rom_data[15:13]; 
+					2'd1: sprite_pixel_color = rom_data[11:9];
+					2'd2: sprite_pixel_color = rom_data[7:5];
+					2'd3: sprite_pixel_color = rom_data[3:1];
 					default: sprite_pixel_color = 3'b000; 
 				endcase
 			end
@@ -525,4 +531,3 @@ module memory_controller (
 	end 
 
 endmodule
-
