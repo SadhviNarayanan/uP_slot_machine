@@ -525,3 +525,4 @@ module memory_controller (
 	end 
 
 endmodule
+
