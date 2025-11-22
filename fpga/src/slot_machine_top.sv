@@ -69,9 +69,9 @@ module slot_machine_top (//input  logic clk,
         .vcount        (vcount),
         .active_video  (active_video)
     );
-	assign reel1_idx = 2;
+	assign reel1_idx = 0;
 	assign reel2_idx = 0;
-	assign reel3_idx = 1;
+	assign reel3_idx = 0;
 	assign start_spin = 1;
 
     memory_controller u_memory_controller ( 
