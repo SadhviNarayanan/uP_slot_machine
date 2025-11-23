@@ -355,4 +355,3 @@ module rom_wrapper (
     // assign data_o = data_o_reg;
     
 endmodule
-
