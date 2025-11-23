@@ -25,6 +25,37 @@ module rom_block2 #(
 endmodule
 
 
+module rom_sync #(
+    parameter string text_file,
+    parameter int UNIQUE_ID = 0  // Forces separate synthesis for each instance
+) (
+    input  logic clk,
+    input  logic [7:0] address,
+    output logic [15:0] dout
+);
+    localparam SPRITE_WIDTH = 64;
+    localparam DATA_WIDTH = 16;
+    localparam TOTAL_WORDS = 256;
+    localparam ADDRESS_WIDTH = 8;
+    
+    (* syn_keep = 1 *) logic [DATA_WIDTH-1:0] single_bram1 [0:TOTAL_WORDS-1];
+    (* syn_keep = 1 *) logic [DATA_WIDTH-1:0] pre_dout;
+
+    initial begin 
+        $readmemh(text_file, single_bram1);
+    end
+
+    // assign dout = single_bram1[address]; 
+    
+     always_ff @(posedge clk) begin 
+         pre_dout <= single_bram1[address]; 
+         dout     <= pre_dout;
+     end
+
+
+endmodule
+
+
 module rom_block3 #(
     parameter string text_file,
     parameter int UNIQUE_ID = 0  // Forces separate synthesis for each instance
