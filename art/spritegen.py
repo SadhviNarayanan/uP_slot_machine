@@ -1,3 +1,7 @@
+"""
+I am going to give you some python starter code. This code contains a large 4096 unicode character string that makes a 64x64 sprite image. Presently, the sprite is only a white border with black background. Your job is to modify the code to have 7 of these strings with very specific constraints. all sprites must have the white border and black background. the artwork for all sprites must be in the style of a classic mechanical slot machine. All sprites must have high contrast borders only the 8 colors in the starter code may be used The first sprite is a lemon the second sprite is two cherries connected by their stems the thirst sprite is a bell the fourth sprite is a single BAR, which is black with a white border and white lettering the fifth sprite is a tripple bar with the same style as the fourth sprite the sixth sprite is a red number 7 with a white border the seventh sprite is a rainbow asterisk with the word "WILD" in all caps across the center, but inside the asterisk Make sure to put all code in one copyable block or in a new text file STARTER CODE:
+"""
+
 
 RED     = "🟥"
 GREEN   = "🟩"
@@ -7,7 +11,6 @@ CYAN    = "🟢"
 MAGENTA = "🟪"
 BLACK   = "⬛"
 WHITE   = "⬜"
-
 
 sprite1 =  "\
 ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜\
