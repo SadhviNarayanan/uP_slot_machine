@@ -27,7 +27,7 @@ module memory_controller (
     localparam REELS_START_V = 50;
     localparam REEL_DISPLAY_HEIGHT = 430;
     localparam REELS_END_V = REELS_START_V + REEL_DISPLAY_HEIGHT - 1;
-    localparam PIXELS_PER_FRAME = 12;
+    localparam PIXELS_PER_FRAME = 24;
     
     // Reel sequences (LUTs)
     logic [2:0] reel1_sequence [0:6];
@@ -140,7 +140,7 @@ module memory_controller (
             reel1_offset <= 0;
             reel2_offset <= 0;
             reel3_offset <= 0;
-            reel1_spin_amt <= 3'd5;
+            reel1_spin_amt <= 3'd3;
             reel2_spin_amt <= 3'd1;
             reel3_spin_amt <= 3'd1;
             reel1_final_sprite <= 0;
@@ -185,7 +185,7 @@ module memory_controller (
                     next_reel1_offset = reel1_offset;
                     next_reel2_offset = reel2_offset;
                     next_reel3_offset = reel3_offset;
-                    next_reel1_spin_amt = 3'd5;
+                    next_reel1_spin_amt = 3'd3;
                     next_reel2_spin_amt = 3'd2;
                     next_reel3_spin_amt = 3'd2;
                     next_state_led = 3'b000;
@@ -220,7 +220,7 @@ module memory_controller (
                 next_reel3_offset = reel3_offset + PIXELS_PER_FRAME;
 
                 if (reel1_offset != reel1_ending_offset) begin
-                    next_reel1_offset = reel1_offset + 4;
+                    next_reel1_offset = reel1_offset + 12;
                     if (next_reel1_offset >= TOTAL_HEIGHT) begin
                         next_reel1_offset = next_reel1_offset - TOTAL_HEIGHT;
                     end
@@ -254,7 +254,7 @@ module memory_controller (
                 next_reel3_offset = reel3_offset + PIXELS_PER_FRAME;
 
                 if (reel2_offset != reel2_ending_offset) begin
-                    next_reel2_offset = reel2_offset + 4;
+                    next_reel2_offset = reel2_offset + 12;
                     if (next_reel2_offset >= TOTAL_HEIGHT) begin
                         next_reel2_offset = next_reel2_offset - TOTAL_HEIGHT;
                     end
@@ -283,7 +283,7 @@ module memory_controller (
 
             REEL3_STOP: begin
                 if (reel3_offset != reel3_ending_offset) begin
-                    next_reel3_offset = reel3_offset + 4;
+                    next_reel3_offset = reel3_offset + 12;
                     if (next_reel3_offset >= TOTAL_HEIGHT) begin
                         next_reel3_offset = next_reel3_offset - TOTAL_HEIGHT;
                     end
@@ -404,6 +404,7 @@ module memory_controller (
     logic [15:0] rom_data_r, rom_data_r2, rom_data_r3;
     logic [1:0] pixel_in_word_r2, pixel_in_word_r3, pixel_in_word_r4, pixel_in_word_r5, pixel_in_word_r6; // Final pixel selector (2-cycle delay)
 	logic active_video_d5, inside_reel_r5;
+	logic active_video_d6, inside_reel_r6;
 
 
     // control signal pipeline
@@ -414,14 +415,19 @@ module memory_controller (
         if (!reset_n) begin
             rom_data_r <= 16'd0; pixel_in_word_r2 <= 2'd0;
             inside_reel_r2 <= 1'b0; active_video_d2 <= 1'b0;
+			sprite_idx_r2 <= 0;
 			
-			rom_data_r2 <= 16'd0; pixel_in_word_r3 <= 2'd0;
-			inside_reel_r3 <= 1'b0; active_video_d3 <= 1'b0;
+			rom_data_r2 <= 16'd0; 
 			
+			pixel_in_word_r3 <= 2'd0;
+			inside_reel_r3 <= 1'b0; 
+			active_video_d3 <= 1'b0;
 			sprite_idx_r3 <= 0;
 			
 			pixel_in_word_r4 <= 0;
 			sprite_idx_r4 <= 0;
+			active_video_d4 <= 0;
+			inside_reel_r4 <= 0;
 			
 			pixel_in_word_r5 <= 0;
 			active_video_d5 <= 0;
@@ -430,6 +436,28 @@ module memory_controller (
 			
 			pixel_in_word_r6 <= 0;
 			sprite_idx_r6 <= 0;
+			active_video_d6 <= 0;
+			inside_reel_r6 <= 0;
+			
+			
+			//rom_data_r <= 16'd0; pixel_in_word_r2 <= 2'd0;
+            //inside_reel_r2 <= 1'b0; active_video_d2 <= 1'b0;
+			
+			//rom_data_r2 <= 16'd0; pixel_in_word_r3 <= 2'd0;
+			//inside_reel_r3 <= 1'b0; active_video_d3 <= 1'b0;
+			
+			//sprite_idx_r3 <= 0;
+			
+			//pixel_in_word_r4 <= 0;
+			//sprite_idx_r4 <= 0;
+			
+			//pixel_in_word_r5 <= 0;
+			//active_video_d5 <= 0;
+			//inside_reel_r5 <= 0;
+			//sprite_idx_r5	<= 0;
+			
+			//pixel_in_word_r6 <= 0;
+			//sprite_idx_r6 <= 0;
         end else begin
             rom_data_r       <= rom_data; // Capture 1-cycle latency data
             pixel_in_word_r2 <= pixel_in_word_r;
@@ -456,6 +484,8 @@ module memory_controller (
 			
 			pixel_in_word_r6 <= pixel_in_word_r5;
 			sprite_idx_r6 <= sprite_idx_r5;
+			active_video_d6 <= active_video_d5;
+			inside_reel_r6 <= inside_reel_r5;
 			
         end
     end
@@ -519,11 +549,11 @@ module memory_controller (
 
 	// output
 	always_comb begin 
-		if (active_video_d3) begin 
-			if (inside_reel_r3) begin  
+		if (active_video_d4) begin 
+			if (inside_reel_r4) begin  
 				pixel_rgb = sprite_pixel_color;
 			end else begin
-				pixel_rgb = 3'b111;
+				pixel_rgb = 3'b000;
 			end
 		end else begin
 			pixel_rgb = 3'b000;
