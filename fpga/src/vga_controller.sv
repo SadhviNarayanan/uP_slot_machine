@@ -4,12 +4,15 @@ module vga_controller (input  logic clk,
                        input  logic reset_n, 
                        output logic hsync, 
                        output logic vsync, 
-                       output logic [10:0] hcount,  // 0–799
-                       output logic [9:0]  vcount,   // 0–524
+                       output logic [10:0] hcount,  // 0Ã¢â‚¬â€œ799
+                       output logic [9:0]  vcount,   // 0Ã¢â‚¬â€œ524
                        output logic active_video);
 
     // VGA 640x480 @ 60Hz 1024 x 600
     // Pixel clock: 25.175 MHz
+	
+	logic hsync1, hsync2;
+	logic vsync1, vsync2;
 
     // horizontal
     localparam H_DISPLAY    = 640;  // Visible
@@ -46,7 +49,7 @@ module vga_controller (input  logic clk,
                 hcount <= 0;
                 if (vcount == V_TOTAL - 1) begin
                     vcount <= 0;
-                end else begin
+                end else begin 
                     vcount <= vcount + 1;
                 end
             end else begin
@@ -61,6 +64,7 @@ module vga_controller (input  logic clk,
 
     assign hsync = ~(hcount < H_SYNC); // active low
     assign vsync = ~(vcount < V_SYNC); // active low
+	
 
     // the inverse of this will tell me if i am in a blank region (anywhere where i am not in the display zone)
     assign active_video = ((hcount >= H_DISPLAY_START && hcount < H_DISPLAY_END) && (vcount >= V_DISPLAY_START && vcount < V_DISPLAY_END));
