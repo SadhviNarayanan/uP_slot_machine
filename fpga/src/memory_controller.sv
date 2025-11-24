@@ -35,33 +35,33 @@ module memory_controller (
     logic [2:0] reel3_sequence [0:6];
     
     initial begin
-        // Reel 1: sequential
-        reel1_sequence[0] = 3'd0; 
-        reel1_sequence[1] = 3'd1;
-        reel1_sequence[2] = 3'd2; 
-        reel1_sequence[3] = 3'd3;
-        reel1_sequence[4] = 3'd4; 
-        reel1_sequence[5] = 3'd5;
-        reel1_sequence[6] = 3'd6;  
-        
-        // Reel 2: shuffled
-        reel2_sequence[0] = 3'd2; 
-        reel2_sequence[1] = 3'd5;
-        reel2_sequence[2] = 3'd0; 
-        reel2_sequence[3] = 3'd6;
-        reel2_sequence[4] = 3'd3; 
-        reel2_sequence[5] = 3'd1;
-        reel2_sequence[6] = 3'd4; 
-        
-        // Reel 3: different shuffle
-        reel3_sequence[0] = 3'd5; 
-        reel3_sequence[1] = 3'd3;
-        reel3_sequence[2] = 3'd1; 
-        reel3_sequence[3] = 3'd4;
-        reel3_sequence[4] = 3'd2; 
-        reel3_sequence[5] = 3'd0;
-        reel3_sequence[6] = 3'd6; 
-    end
+		// Reel 1: sequential
+		reel1_sequence[0] = 3'd0; 
+		reel1_sequence[1] = 3'd1;
+		reel1_sequence[2] = 3'd2; 
+		reel1_sequence[3] = 3'd3;
+		reel1_sequence[4] = 3'd4; 
+		reel1_sequence[5] = 3'd5;
+		reel1_sequence[6] = 3'd6;  
+		
+		// Reel 2: mapped according to case statement
+		reel2_sequence[0] = 3'd3; 
+		reel2_sequence[1] = 3'd0;
+		reel2_sequence[2] = 3'd6; 
+		reel2_sequence[3] = 3'd1;
+		reel2_sequence[4] = 3'd4; 
+		reel2_sequence[5] = 3'd2;
+		reel2_sequence[6] = 3'd5; 
+		
+		// Reel 3: mapped according to case statement
+		reel3_sequence[0] = 3'd2; 
+		reel3_sequence[1] = 3'd5;
+		reel3_sequence[2] = 3'd1; 
+		reel3_sequence[3] = 3'd6;
+		reel3_sequence[4] = 3'd3; 
+		reel3_sequence[5] = 3'd0;
+		reel3_sequence[6] = 3'd4; 
+	end
 
     logic [9:0] reel1_offset, reel2_offset, reel3_offset;
     logic [9:0] next_reel1_offset, next_reel2_offset, next_reel3_offset;
@@ -91,27 +91,27 @@ module memory_controller (
         
         // Reel 2
         case (reel2_final_sprite)
-            3'd2: reel2_target_pos = 3'd0;
-            3'd5: reel2_target_pos = 3'd1;
-            3'd0: reel2_target_pos = 3'd2;
-            3'd6: reel2_target_pos = 3'd3;
-            3'd3: reel2_target_pos = 3'd4;
-            3'd1: reel2_target_pos = 3'd5;
-            3'd4: reel2_target_pos = 3'd6;
-            default: reel2_target_pos = 3'd0;
-        endcase
+			3'd3: reel2_target_pos = 3'd0;
+			3'd0: reel2_target_pos = 3'd1;
+			3'd6: reel2_target_pos = 3'd2;
+			3'd1: reel2_target_pos = 3'd3;
+			3'd4: reel2_target_pos = 3'd4;
+			3'd2: reel2_target_pos = 3'd5;
+			3'd5: reel2_target_pos = 3'd6;
+			default: reel2_target_pos = 3'd0;
+		endcase
         
         // Reel 3
-        case (reel3_final_sprite)
-            3'd5: reel3_target_pos = 3'd0;
-            3'd3: reel3_target_pos = 3'd1;
-            3'd1: reel3_target_pos = 3'd2;
-            3'd4: reel3_target_pos = 3'd3;
-            3'd2: reel3_target_pos = 3'd4;
-            3'd0: reel3_target_pos = 3'd5;
-            3'd6: reel3_target_pos = 3'd6;
-            default: reel3_target_pos = 3'd0;
-        endcase
+       case (reel3_final_sprite)
+			3'd2: reel3_target_pos = 3'd0;
+			3'd5: reel3_target_pos = 3'd1;
+			3'd1: reel3_target_pos = 3'd2;
+			3'd6: reel3_target_pos = 3'd3;
+			3'd3: reel3_target_pos = 3'd4;
+			3'd0: reel3_target_pos = 3'd5;
+			3'd4: reel3_target_pos = 3'd6;
+			default: reel3_target_pos = 3'd0;
+		endcase
     end
     
     //assign reel1_ending_offset = (reel1_target_pos * SPRITE_HEIGHT + TOTAL_HEIGHT - centering_offset) % TOTAL_HEIGHT;
