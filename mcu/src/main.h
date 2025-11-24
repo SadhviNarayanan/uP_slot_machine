@@ -9,7 +9,7 @@
 
 #define COIN_PIN   PA8
 #define BUTTON_PIN PA10
-#define DONE_PIN   PA11
+#define DONE_PIN   PA9
 
 #define BR   1
 #define CPOL 0

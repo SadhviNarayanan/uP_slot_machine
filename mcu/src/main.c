@@ -53,8 +53,8 @@ int main(void) {
   EXTI->FTSR1 |=  (1 << gpioPinOffset(COIN_PIN));     // Enable rising edge trigger for coin slot
 
   // 4. Turn on EXTI interrupt in NVIC_ISER
-  NVIC->ISER[0] |= (1 << EXTI9_5_IRQn);           // enable EXTI interrupts for pin 8
-  NVIC->ISER[1] |= (1 << (EXTI15_10_IRQn - 32));  // enable EXTI interrupts for pin 10
+  NVIC->ISER[0] |= (1 << EXTI9_5_IRQn);           // enable EXTI interrupts for pin 8 an 9
+  NVIC->ISER[1] |= (1 << (EXTI15_10_IRQn - 32));  // enable EXTI interrupts for pin 10  
 
   // Initialize
   initRNG();
@@ -149,11 +149,6 @@ void EXTI15_10_IRQHandler(void){
         EXTI->PR1 |= (1 << gpioPinOffset(BUTTON_PIN));
         button_push = 1;
     } 
-    if (EXTI->PR1 & (1 << gpioPinOffset(DONE_PIN))){
-        // If so, clear the interrupt (NB: Write 1 to reset.)
-        EXTI->PR1 |= (1 << gpioPinOffset(DONE_PIN));
-        done = 1;
-    } 
 }
 
 
@@ -171,6 +166,11 @@ void EXTI9_5_IRQHandler(void){
         
         credit_count++;
         update_pending = 1;
+    } 
+    if (EXTI->PR1 & (1 << gpioPinOffset(DONE_PIN))){
+        // If so, clear the interrupt (NB: Write 1 to reset.)
+        EXTI->PR1 |= (1 << gpioPinOffset(DONE_PIN));
+        done = 1;
     } 
 }
 
