@@ -73,3 +73,28 @@ module rom_block3 #(
          dout <= dout1; 
     end
 endmodule
+
+
+module spram #(
+    parameter ADDR_WIDTH = 14,
+    parameter DATA_WIDTH = 16
+)(
+    input  logic                    clk,
+    input  logic                    wr_en,
+    input  logic [ADDR_WIDTH-1:0]   addr,
+    input  logic [DATA_WIDTH-1:0]   din,
+    output logic [DATA_WIDTH-1:0]   dout
+);
+    localparam TOTAL_WORDS = 2**ADDR_WIDTH;
+    
+    logic [DATA_WIDTH-1:0] memory [0:TOTAL_WORDS-1];
+    
+    // single port RAM with 1-cycle read latency
+    always_ff @(posedge clk) begin
+        if (wr_en) begin
+            memory[addr] <= din;
+        end
+        dout <= memory[addr];
+    end
+
+endmodule
