@@ -7,8 +7,8 @@
 #include <stdlib.h>
 //#include "STM32L432KC.h"
 
-#define COIN_PIN   PA8
-#define BUTTON_PIN PA10
+#define COIN_PIN   PA10
+#define BUTTON_PIN PA8
 #define DONE_PIN   PA9
 
 #define BR   1
