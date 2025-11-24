@@ -80,13 +80,7 @@ module rom_wrapper (
     //r15 r15_ip (.rd_clk_i(clk), .rst_i(1'b0), .rd_en_i(1'b1), .rd_clk_en_i(1'b1), .rd_addr_i(bram_addr), .rd_data_o(r15_data));
     //r16 r16_ip (.rd_clk_i(clk), .rst_i(1'b0), .rd_en_i(1'b1), .rd_clk_en_i(1'b1), .rd_addr_i(bram_addr), .rd_data_o(r16_data));
 
-
-
-
-
-
-
-
+	
 
 	rom_sync #(.text_file("C:/Users/sanarayanan/my_designs/Slot_Machine_Final/source/impl_1/sprite_rom0.mem"), .UNIQUE_ID(1)) 
         r1_inst (.clk(clk), .address(bram_addr), .dout(r1_data));
