@@ -20,6 +20,7 @@ module memory_controller (
     localparam PIXEL_SCALE = 2;
     localparam TOTAL_HEIGHT = NUM_SPRITES * SPRITE_HEIGHT * PIXEL_SCALE;
     localparam TOTAL_REEL_WIDTH = SPRITE_WIDTH * PIXEL_SCALE;
+	localparam FB_ADDR_WIDTH = 16;
 
     localparam REEL1_START_H = 190;
     localparam REEL2_START_H = 398;
