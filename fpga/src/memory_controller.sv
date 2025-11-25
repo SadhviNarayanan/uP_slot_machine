@@ -312,7 +312,7 @@ module memory_controller (
                             next_reel3_offset = reel3_ending_offset;
                     end
                 end else begin
-                    next_state = DEAD;
+                    next_state = IDLE;
                     done = 1;
                 end
                 
