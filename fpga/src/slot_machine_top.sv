@@ -1,23 +1,24 @@
 module slot_machine_top (//input  logic clk, 
                          input  logic reset_n,
 
-                         //input  logic sclk, 
-                         //input  logic copi, 
-                         //input  logic cs, 
-                         //output logic sdo, 
+                         input  logic sclk, 
+                         input  logic copi, 
+                         input  logic cs, 
+                         output logic sdo, 
 
                          output logic hsync, 
                          output logic vsync,
                          output logic [2:0] vga_rgb,
                          output logic done,
 						 output logic debug_pll_clk,
-						 output logic [2:0] state_led
+						 output logic [2:0] state_led,
+						 output logic ready
                         
                          //output logic [4:0] select,
                          //output logic [6:0] seven_segment_output 
 						 );
 
-    logic [10:0] hcount;
+    logic [10:0] hcount; 
     logic [9:0] vcount;
 
     logic [2:0]  reel1_idx, reel2_idx, reel3_idx;
@@ -29,9 +30,10 @@ module slot_machine_top (//input  logic clk,
     logic        active_video;
 	logic pll_clk_internal, pll_lock;
 
-    /*
+    
     spi_data_extract spi_data_extract (
         .sclk          (sclk),
+		.clk		   (pll_clk_internal),
         .reset_n       (reset_n),
         .copi          (copi),
         .cs            (cs),
@@ -43,9 +45,10 @@ module slot_machine_top (//input  logic clk,
         .win_credits   (win_credits),
         .is_win        (is_win),
         .total_credits (total_credits),
-        .is_total      (is_total)
+        .is_total      (is_total),
+		.ready		    (ready)
     );
-	*/
+	
 	
      pll_clock #(
 		.CLKHF_DIV("0b00"),
@@ -69,10 +72,10 @@ module slot_machine_top (//input  logic clk,
         .vcount        (vcount),
         .active_video  (active_video)
     );
-	assign reel1_idx = 0;
-	assign reel2_idx = 0;
-	assign reel3_idx = 0;
-	assign start_spin = 1;
+	//assign reel1_idx = 0;
+	//assign reel2_idx = 6;
+	//assign reel3_idx = 4;
+	//assign start_spin = 1;
 
     memory_controller u_memory_controller ( 
         .clk              (pll_clk_internal),
