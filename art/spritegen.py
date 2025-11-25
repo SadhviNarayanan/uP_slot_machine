@@ -496,15 +496,17 @@ bell = "\
 
 files = [f"sprite{x}_bram{y}.mem" for x in range(6) for y in range(4)]
 sprites = [lemon, cherry, bell, bar, bars, seven]
-print(files)
+# print(files)
 
-for idx in range(6):
-    with open(files[idx], "w") as f:
-        for pidx in range(len(sprites[idx])):
-            pixel = sprites[idx][pidx]
-            print(color[pixel], file = f, end="")
-            if pidx % 4 == 3:
-                print(file=f)
+for i in range(6):
+    for ii in range(4):
+        with open(files[4*i + ii], "w") as f:
+            print(f"writing {files[4*i + ii]}")
+            for iii in range(len(sprites[i])//4):
+                pixel = sprites[i][ii*(len(sprites[i])//4) + iii]
+                print(color[pixel], file = f, end="")
+                if iii % 4 == 3:
+                    print(file=f)
 
 
 
