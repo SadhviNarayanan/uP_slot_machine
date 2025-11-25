@@ -1,6 +1,7 @@
 // TODO: need to define bus widths for these signals, and do we need a reset, and ack
 // have a single wire/pin ack like done after spin is done and after any requet has been serviced
 module spi_data_extract (input  logic sclk, 
+						 input logic clk,
                          input  logic reset_n, 
                          input  logic copi, // sdi 
                          input  logic cs,  // active low
@@ -12,8 +13,8 @@ module spi_data_extract (input  logic sclk,
                          output logic [11:0] win_credits, 
                          output logic is_win, 
                          output logic [11:0] total_credits, 
-                         output logic is_total
-						 // output logic ready
+                         output logic is_total,
+						 output logic ready
 						 ); 
 
     logic [15:0] data;
@@ -35,22 +36,22 @@ module spi_data_extract (input  logic sclk,
             counter <= 4'b0;
         end else begin
             // cs is low (active)
-            if (!ready) begin  // only shift if not ready yet
-                data <= {data[14:0], copi};
+            //if (!ready) begin  // only shift if not ready yet
+			data <= {data[14:0], copi};
 
-                if (counter == 4'd15) begin
-                    ready <= 1;
-                    counter <= 4'b0;
-                end else begin
-                    counter <= counter + 4'd1;
-                    ready <= 0;
-                end
-            end
+			if (counter == 4'd15) begin
+				ready <= 1;
+				counter <= 4'b0;
+			end else begin
+				counter <= counter + 4'd1;
+				ready <= 0;
+			end
+            //end
             // If ready is already high, don't shift anymore until cs goes high
         end
     end
 
-    always_ff @(posedge sclk, negedge reset_n) begin
+    always_ff @(posedge clk, negedge reset_n) begin
         if (!reset_n) begin
             reel1_idx <= 0;
             reel2_idx <= 0;
@@ -93,7 +94,9 @@ module spi_data_extract (input  logic sclk,
                         is_win <= 0;
                     end
 
-                    default: // do nothing
+                    default: begin // do nothing
+						// do nothing
+					end
                 endcase
             end
         end
