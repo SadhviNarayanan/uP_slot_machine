@@ -38,7 +38,7 @@ module rom_sync #(
     localparam TOTAL_WORDS = 256;
     localparam ADDRESS_WIDTH = 8;
     
-    logic [DATA_WIDTH-1:0] single_bram1 [0:TOTAL_WORDS-1];
+    reg [DATA_WIDTH-1:0] single_bram1 [0:TOTAL_WORDS-1];
     logic [DATA_WIDTH-1:0] pre_dout;
 
     initial begin 
@@ -73,7 +73,6 @@ module rom_block3 #(
          dout <= dout1; 
     end
 endmodule
-
 
 module spram #(
     parameter ADDR_WIDTH = 14,
