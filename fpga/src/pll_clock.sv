@@ -79,4 +79,3 @@ module pll_clock #(
     assign locked = pll_lock;
 
 endmodule
-
