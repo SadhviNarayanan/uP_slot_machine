@@ -209,15 +209,68 @@ uint16_t binToBCD3(uint16_t binary_val) {
     return bcd_result;
 }
 
-uint16_t calcWinnings(uint8_t reel1, uint8_t reel2, uint8_t reel3) {
-  return 42; // for debug
-  // uint16_t winnings = 0;  
-    // // general win scenario
-    // if (reel1 == reel2 && reel2 == reel2) {
-    //   winnings = winvals[reel1];
-    // }
 
-    // // special cases
-    
-  
+uint16_t calcWinnings(uint8_t r1, uint8_t r2, uint8_t r3) {
+    uint16_t winnings = 0;
+
+    // --- Case 1: All three reels match (basic win) ---
+    if (r1 == r2 && r2 == r3) {
+        winnings = winvals[r1];
+    }
+
+    // --- Case 2: Wild present ---
+    else if (r1 == WILD_IDX || r2 == WILD_IDX || r3 == WILD_IDX) {
+        uint16_t maxWin = 0;
+
+        // Try substituting wild as each possible symbol and choose best 3-of-a-kind
+        for (int sym = LEMON_IDX; sym <= SEVEN_IDX; sym++) {
+            int matchCount = 0;
+            if (r1 == sym || r1 == WILD_IDX) matchCount++;
+            if (r2 == sym || r2 == WILD_IDX) matchCount++;
+            if (r3 == sym || r3 == WILD_IDX) matchCount++;
+            if (matchCount == 3) {
+                if (winvals[sym] > maxWin) {
+                    maxWin = winvals[sym];
+                }
+            }
+        }
+
+        // Mixed bars: wild(s) can join bars only if all non-wild reels are bars
+        int nonWildCount = 0, nonWildBarCount = 0;
+        if (r1 != WILD_IDX) { nonWildCount++; if (r1 == BAR_IDX || r1 == TPLBAR_IDX) nonWildBarCount++; }
+        if (r2 != WILD_IDX) { nonWildCount++; if (r2 == BAR_IDX || r2 == TPLBAR_IDX) nonWildBarCount++; }
+        if (r3 != WILD_IDX) { nonWildCount++; if (r3 == BAR_IDX || r3 == TPLBAR_IDX) nonWildBarCount++; }
+
+        if (nonWildCount > 0 && nonWildBarCount == nonWildCount) {
+            int barCount = 0;
+            if (r1 == BAR_IDX) barCount += 1;
+            if (r2 == BAR_IDX) barCount += 1;
+            if (r3 == BAR_IDX) barCount += 1;
+            if (r1 == TPLBAR_IDX) barCount += 3;
+            if (r2 == TPLBAR_IDX) barCount += 3;
+            if (r3 == TPLBAR_IDX) barCount += 3;
+            if (r1 == WILD_IDX) barCount += 3;
+            if (r2 == WILD_IDX) barCount += 3;
+            if (r3 == WILD_IDX) barCount += 3;
+
+            if (barCount > maxWin) maxWin = barCount;
+        }
+
+        winnings = maxWin;
+    }
+
+    // --- Case 3: Mixed bars without wild ---
+    else {
+        int barCount = 0;
+        if (r1 == BAR_IDX) barCount += 1;
+        if (r2 == BAR_IDX) barCount += 1;
+        if (r3 == BAR_IDX) barCount += 1;
+        if (r1 == TPLBAR_IDX) barCount += 3;
+        if (r2 == TPLBAR_IDX) barCount += 3;
+        if (r3 == TPLBAR_IDX) barCount += 3;
+
+        if (barCount > 0) winnings = barCount;
+    }
+
+    return winnings;
 }
