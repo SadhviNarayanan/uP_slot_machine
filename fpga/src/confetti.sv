@@ -216,13 +216,24 @@ end
 logic [23:0] flash_counter;
 logic flash_on;
 
+logic win_state;  // Stays high until next spin
+
 always_ff @(posedge clk, negedge reset_n) begin
     if (!reset_n) begin
+        win_state <= 0;
         flash_counter <= 0;
-    end else if (done && is_win) begin
-        flash_counter <= flash_counter + 1;
     end else begin
-        flash_counter <= 0;
+        if (start_spin) begin
+            win_state <= 0;  // Clear on new spin
+            flash_counter <= 0;
+        end else if (done) begin  // Capture win on the done pulse
+            win_state <= 1;  // Latch the win
+        end
+        
+        // Counter runs whenever we're in win state
+        if (win_state) begin
+            flash_counter <= flash_counter + 1;
+        end
     end
 end
 
@@ -243,7 +254,7 @@ end
 // In your output logic:
 always_comb begin 
     if (active_video_d4) begin 
-        if (is_yellow_border_r4 && (done && is_win) && flash_on) begin
+        if (is_yellow_border_r4 && win_state && flash_on) begin
             pixel_rgb = win_border_color;  // Rainbow flashing border
         end else if (is_yellow_border_r4) begin
             pixel_rgb = 3'b110;  // Normal yellow
