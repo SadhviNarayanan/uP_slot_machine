@@ -536,33 +536,6 @@ module memory_controller (
 		endcase
 	end
 
-
-	
-	
-	/*
-	always_comb begin
-		unique case (pixel_in_word_r3) 
-			2'd0: sprite_pixel_color = rom_data[15:13]; 
-			2'd1: sprite_pixel_color = rom_data[11:9];
-			2'd2: sprite_pixel_color = rom_data[7:5];
-			2'd3: sprite_pixel_color = rom_data[3:1];
-			default: sprite_pixel_color = 3'b000; 
-		endcase
-	end
-	*/
-	
-	/* --. works ish
-	always_comb begin
-		unique case (pixel_in_word_r3) 
-			2'd0: sprite_pixel_color = rom_data_r2[15:13]; 
-			2'd1: sprite_pixel_color = rom_data_r2[11:9];
-			2'd2: sprite_pixel_color = rom_data_r2[7:5];
-			2'd3: sprite_pixel_color = rom_data_r2[3:1];
-			default: sprite_pixel_color = 3'b000; 
-		endcase
-	end
-	*/
-
 	// output
 	always_comb begin 
 		if (active_video_d4) begin 

@@ -4,11 +4,10 @@
 module select_toggle(
 	input logic clk,
 	input logic reset_n,
-	output logic [4:0] freq_counter
+	output logic [2:0] freq_counter
 );
 
   logic [23:0] counter;
-  logic [2:0] freq_counter;
 
   // For 25MHz clock and 5 displays at 60Hz each:
   // 25,000,000 / (60 * 5) = 83,333 cycles per display

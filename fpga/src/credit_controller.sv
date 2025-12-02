@@ -25,7 +25,7 @@ module credit_controller(
   logic [2:0] freq_counter;
  
   // toggles the clock at 60Hz - frequency where humans cannot see flickers
-  select_toggle select_toggle_controller(clk, reset, freq_counter);
+  select_toggle select_toggle_controller(clk, reset_n, freq_counter);
   
   seven_segment seven_segment_decoder2(s, seg);
 
@@ -33,23 +33,23 @@ module credit_controller(
   always_comb begin
        if (freq_counter == 0) begin
 		   // determines which pnp transistor to provide a load to
-			enable_sel = 3'b10000; // enable first 7-seg
+			enable_sel = 5'b10000; // enable first 7-seg
 			s = won_amt1; // chooses first DIP switch
        end else if (freq_counter == 1) begin
 		    // determines which pnp transistor to provide a load to
-			enable_sel = 3'b01000; // enable first 7-seg
+			enable_sel = 5'b01000; // enable first 7-seg
 			s = won_amt2; // chooses first DIP switch
 	   end else if (freq_counter == 2) begin
 		    // determines which pnp transistor to provide a load to
-			enable_sel = 3'b00100; // enable first 7-seg
+			enable_sel = 5'b00100; // enable first 7-seg
 			s = credit_amt1; // chooses first DIP switch
 	   end else if (freq_counter == 3) begin
 		    // determines which pnp transistor to provide a load to
-			enable_sel = 3'b00010; // enable first 7-seg
+			enable_sel = 5'b00010; // enable first 7-seg
 			s = credit_amt2; // chooses first DIP switch
 	   end else begin
 		    // determines which pnp transistor to provide a load to
-			enable_sel = 3'b00001; // enable first 7-seg
+			enable_sel = 5'b00001; // enable first 7-seg
 			s = credit_amt3; // chooses first DIP switch
 	   end	
    end
