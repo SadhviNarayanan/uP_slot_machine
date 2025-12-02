@@ -17,8 +17,9 @@ module memory_controller (
     localparam NUM_SPRITES = 7;
     localparam SPRITE_HEIGHT = 64;
     localparam SPRITE_WIDTH = 64;
-    localparam PIXEL_SCALE = 1;
-    localparam TOTAL_HEIGHT = NUM_SPRITES * SPRITE_HEIGHT * 2 * PIXEL_SCALE;
+    localparam PIXEL_SCALE = 2;
+	localparam SCALED_WIDTH = SPRITE_WIDTH * PIXEL_SCALE;
+    localparam TOTAL_HEIGHT = NUM_SPRITES * SPRITE_HEIGHT * PIXEL_SCALE;
     localparam TOTAL_SPIN_HEIGHT = NUM_SPRITES * SPRITE_HEIGHT * PIXEL_SCALE;
 
     localparam REEL1_START_H = 190;
@@ -28,6 +29,10 @@ module memory_controller (
     localparam REEL_DISPLAY_HEIGHT = 430;
     localparam REELS_END_V = REELS_START_V + REEL_DISPLAY_HEIGHT - 1;
     localparam PIXELS_PER_FRAME = 24;
+
+    localparam MIDDLE_ROW_TOP = REEL_DISPLAY_HEIGHT / 2 /* Y position of middle row */;
+    localparam MIDDLE_ROW_BOTTOM = MIDDLE_ROW_TOP + SPRITE_HEIGHT * 2 - 7; // *2 if scaled
+    localparam BORDER_WIDTH = 5; // Border thickness in pixels
     
     // Reel sequences (LUTs)
     logic [2:0] reel1_sequence [0:6];
@@ -335,6 +340,7 @@ module memory_controller (
     logic [9:0] y_in_reel;
     logic [2:0] seq_pos;
     logic inside_reel_comb;
+    logic is_yellow_border;
     
     assign inside_reel1_prev = (hcount >= REEL1_START_H && hcount < REEL1_START_H + SPRITE_WIDTH + SPRITE_WIDTH) && 
                                (vcount >= REELS_START_V && vcount < REELS_END_V);
@@ -371,6 +377,62 @@ module memory_controller (
             y_in_sprite = y_in_reel[6:1];
         end
     end
+
+
+    // Precompute repeated horizontal border regions
+	logic in_top_bottom;
+	logic reel1_left_border,  reel1_right_border;
+	logic reel2_left_border,  reel2_right_border;
+	logic reel3_left_border,  reel3_right_border;
+
+	always_comb begin
+		// Reel 1
+		reel1_left_border  = (hcount >= REEL1_START_H - BORDER_WIDTH) &&
+							 (hcount <  REEL1_START_H);
+		reel1_right_border = (hcount >= REEL1_START_H + SCALED_WIDTH) &&
+							 (hcount <  REEL1_START_H + SCALED_WIDTH + BORDER_WIDTH);
+
+		// Reel 2
+		reel2_left_border  = (hcount >= REEL2_START_H - BORDER_WIDTH) &&
+							 (hcount <  REEL2_START_H);
+		reel2_right_border = (hcount >= REEL2_START_H + SCALED_WIDTH) &&
+							 (hcount <  REEL2_START_H + SCALED_WIDTH + BORDER_WIDTH);
+
+		// Reel 3
+		reel3_left_border  = (hcount >= REEL3_START_H - BORDER_WIDTH) &&
+							 (hcount <  REEL3_START_H);
+		reel3_right_border = (hcount >= REEL3_START_H + SCALED_WIDTH) &&
+							 (hcount <  REEL3_START_H + SCALED_WIDTH + BORDER_WIDTH);
+	end
+
+
+	// Main border logic
+	always_comb begin
+		is_yellow_border = 1'b0;
+
+		// ---------------------
+		// Horizontal top/bottom borders
+		// ---------------------
+		in_top_bottom = (vcount >= MIDDLE_ROW_TOP - BORDER_WIDTH && vcount <  MIDDLE_ROW_TOP) || (vcount >  MIDDLE_ROW_BOTTOM && vcount <= MIDDLE_ROW_BOTTOM + BORDER_WIDTH);
+
+		if (in_top_bottom && inside_reel_comb)
+			is_yellow_border = 1'b1;
+
+		// ---------------------
+		// Vertical side borders
+		// ---------------------
+		if (!is_yellow_border &&
+			(vcount >= MIDDLE_ROW_TOP && vcount <= MIDDLE_ROW_BOTTOM))
+		begin
+			if (reel1_left_border  || reel1_right_border ||
+				reel2_left_border  || reel2_right_border ||
+				reel3_left_border  || reel3_right_border)
+			begin
+				is_yellow_border = 1'b1;
+			end
+		end
+	end
+
 	
 	// --- Signals for ROM Interface ---
     logic [9:0]  word_addr;     
@@ -391,6 +453,8 @@ module memory_controller (
     logic inside_reel_r;
     logic active_video_d1;
 
+    logic is_yellow_border_r1, is_yellow_border_r2, is_yellow_border_r3, is_yellow_border_r4, is_yellow_border_r5;
+
     always_ff @(posedge clk, negedge reset_n) begin
         if (!reset_n) begin
 			word_addr_r     <= 0;
@@ -398,12 +462,14 @@ module memory_controller (
             pixel_in_word_r <= 0;
             inside_reel_r   <= 0;
             active_video_d1 <= 0;
+            is_yellow_border_r1 <= 0;
 		end else begin
             word_addr_r     <= word_addr;
             sprite_idx_r    <= sprite_idx;
             pixel_in_word_r <= pixel_in_word;
             inside_reel_r   <= inside_reel_comb;
             active_video_d1 <= active_video;
+            is_yellow_border_r1 <= is_yellow_border;
         end
     end
 
@@ -434,21 +500,25 @@ module memory_controller (
 			sprite_idx_r2 <= 0;
 			
 			rom_data_r2 <= 16'd0; 
+            is_yellow_border_r2 <= 0;
 			
 			pixel_in_word_r3 <= 2'd0;
 			inside_reel_r3 <= 1'b0; 
 			active_video_d3 <= 1'b0;
 			sprite_idx_r3 <= 0;
+            is_yellow_border_r3 <= 0;
 			
 			pixel_in_word_r4 <= 0;
 			sprite_idx_r4 <= 0;
 			active_video_d4 <= 0;
 			inside_reel_r4 <= 0;
+            is_yellow_border_r4 <= 0;
 			
 			pixel_in_word_r5 <= 0;
 			active_video_d5 <= 0;
 			inside_reel_r5 <= 0;
 			sprite_idx_r5	<= 0;
+            is_yellow_border_r5 <= 0;
 			
 			pixel_in_word_r6 <= 0;
 			sprite_idx_r6 <= 0;
@@ -480,23 +550,27 @@ module memory_controller (
             inside_reel_r2   <= inside_reel_r;
             active_video_d2  <= active_video_d1;
 			sprite_idx_r2	<= sprite_idx_r;
+            is_yellow_border_r2 <= is_yellow_border_r1;
 			
 			pixel_in_word_r3 <= pixel_in_word_r2;
 			rom_data_r2 <= rom_data_r;
 			active_video_d3 <= active_video_d2;
 			inside_reel_r3 <= inside_reel_r2;
 			sprite_idx_r3	<= sprite_idx_r2;
+            is_yellow_border_r3 <= is_yellow_border_r2;
 			
 			pixel_in_word_r4 <= pixel_in_word_r3;
 			rom_data_r3 <= rom_data_r2;
 			active_video_d4 <= active_video_d3;
 			inside_reel_r4 <= inside_reel_r3;
 			sprite_idx_r4	<= sprite_idx_r3;
+            is_yellow_border_r4 <= is_yellow_border_r3;
 			
 			pixel_in_word_r5 <= pixel_in_word_r4;
 			active_video_d5 <= active_video_d4;
 			inside_reel_r5 <= inside_reel_r4;
 			sprite_idx_r5	<= sprite_idx_r4;
+            is_yellow_border_r5 <= is_yellow_border_r4;
 			
 			pixel_in_word_r6 <= pixel_in_word_r5;
 			sprite_idx_r6 <= sprite_idx_r5;
@@ -539,7 +613,9 @@ module memory_controller (
 	// output
 	always_comb begin 
 		if (active_video_d4) begin 
-			if (inside_reel_r4) begin  
+            if (is_yellow_border_r4) begin
+                pixel_rgb = 3'b110;
+            end else if (inside_reel_r4) begin  
 				pixel_rgb = sprite_pixel_color;
 			end else begin
 				pixel_rgb = 3'b000;
