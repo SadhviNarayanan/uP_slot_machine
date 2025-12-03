@@ -432,6 +432,53 @@ module memory_controller (
 			end
 		end
 	end
+	
+	
+	
+	
+	// flashing border:
+	//logic [23:0] flash_counter;
+	//logic flash_on;
+
+	//logic win_state;  // Stays high until next spin
+
+	//always_ff @(posedge clk, negedge reset_n) begin
+		//if (!reset_n) begin
+			//win_state <= 0;
+			//flash_counter <= 0;
+		//end else begin
+			//if (start_spin) begin
+				//win_state <= 0;  // Clear on new spin
+				//flash_counter <= 0;
+			//end else if (done) begin  // Capture win on the done pulse
+				//win_state <= 1;  // Latch the win
+			//end
+			
+			 ////Counter runs whenever we're in win state
+			//if (win_state) begin
+				//flash_counter <= flash_counter + 1;
+			//end
+		//end
+	//end
+
+	 ////Flash at ~6Hz (toggle every ~4M cycles at 25MHz)
+	//assign flash_on = flash_counter[21];
+
+	 ////Change border from yellow to rainbow when winning
+	//logic [2:0] win_border_color;
+	//always_comb begin
+		//case (flash_counter[23:22])  // Cycle through colors
+			//2'd0: win_border_color = 3'b100;  // Red
+			//2'd1: win_border_color = 3'b110;  // Yellow
+			//2'd2: win_border_color = 3'b010;  // Green
+			//2'd3: win_border_color = 3'b011;  // Cyan
+		//endcase
+	//end
+
+
+
+	
+	
 
 	
 	// --- Signals for ROM Interface ---
@@ -613,9 +660,12 @@ module memory_controller (
 	// output
 	always_comb begin 
 		if (active_video_d4) begin 
-            if (is_yellow_border_r4) begin
-                pixel_rgb = 3'b110;
-            end else if (inside_reel_r4) begin  
+			//if (is_confetti_pixel_r4) begin  // Confetti on top!
+				//pixel_rgb = confetti_pixel_color_r4;
+			//end else 
+			if (is_yellow_border_r4) begin
+				pixel_rgb = 3'b110;
+			end else if (inside_reel_r4) begin  
 				pixel_rgb = sprite_pixel_color;
 			end else begin
 				pixel_rgb = 3'b000;
@@ -623,6 +673,21 @@ module memory_controller (
 		end else begin
 			pixel_rgb = 3'b000;
 		end
-	end 
+	end
+	//always_comb begin 
+		//if (active_video_d4) begin 
+			//if (is_yellow_border_r4 && (win_state) && flash_on) begin
+				//pixel_rgb = win_border_color;  // Rainbow flashing border
+			//end else if (is_yellow_border_r4) begin
+				//pixel_rgb = 3'b110;  // Normal yellow
+			//end else if (inside_reel_r4) begin  
+				//pixel_rgb = sprite_pixel_color;
+			//end else begin
+				//pixel_rgb = 3'b000;
+			//end
+		//end else begin
+			//pixel_rgb = 3'b000;
+		//end
+	//end
 
 endmodule
