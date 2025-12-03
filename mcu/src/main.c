@@ -8,7 +8,7 @@
 #include "C:\Users\sanarayanan\mcu\uP_slot_machine\mcu\lib\STM32L432KC.h"
 
 uint8_t update_pending = 0;
-uint8_t credit_count   = 10; // FIXME: 10 for debug
+uint8_t credit_count   = 0;
 uint8_t button_push    = 0;
 uint8_t  done = 0;
 
@@ -78,7 +78,8 @@ int main(void) {
   uint8_t  spi_data_upper = 0;
   uint8_t  spi_data_lower = 0;
 
-  credit_count = 100;
+  credit_count = 0;
+
   while(1) {
 
     if (update_pending) {
@@ -135,7 +136,8 @@ int main(void) {
         digitalWrite(SPI_CE, PIO_HIGH);
 
         // trigger credit update for next loop iteration
-        credit_count += winnings - wager;
+        credit_count += winnings;
+        credit_count -= wager;
         update_pending = 1;
       }
 
