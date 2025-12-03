@@ -20,6 +20,7 @@ int main(void) {
   pinMode(BUTTON_PIN, GPIO_INPUT);
   pinMode(COIN_PIN,   GPIO_INPUT);
   pinMode(DONE_PIN,   GPIO_INPUT);
+  pinMode(PA6,   GPIO_OUTPUT);
 
   initSPI(BR, CPOL, CPHA);
   digitalWrite(SPI_CE, PIO_HIGH);
@@ -30,7 +31,7 @@ int main(void) {
 
   GPIOA->PUPDR |= (0b10 << (2*gpioPinOffset(BUTTON_PIN)));// set pull down 
   GPIOA->PUPDR |= (0b10 << (2*gpioPinOffset(DONE_PIN)));// set pull down
-  GPIOA->PUPDR |= (0b01 << (2*gpioPinOffset(COIN_PIN)));// set pull up
+  //GPIOA->PUPDR |= (0b01 << (2*gpioPinOffset(COIN_PIN)));// set pull up
 
 
   // 1. Enable SYSCFG clock domain in RCC
@@ -39,6 +40,12 @@ int main(void) {
   SYSCFG->EXTICR[2] |= _VAL2FLD(SYSCFG_EXTICR3_EXTI10, 0b000); // Select PA10
   SYSCFG->EXTICR[2] |= _VAL2FLD(SYSCFG_EXTICR3_EXTI9,  0b000); // Select PA9
   SYSCFG->EXTICR[2] |= _VAL2FLD(SYSCFG_EXTICR3_EXTI8,  0b000); // Select PA8
+
+  EXTI->PR1 = 0xFFFFFFFF;   // clear all pending EXTI events
+  done = 0;                 // important: clear any bogus done state
+  button_push = 0;
+  update_pending = 0;
+
 
   // Enable interrupts globally
   __enable_irq();
@@ -102,7 +109,8 @@ int main(void) {
     }
 
     if (button_push) {
-      if (credit_count >= wager) {
+      //credit_count = 0;
+      if (credit_count >= wager) { // credit_count >= wager
         reel1 = get_random_number() % 7;
         reel2 = get_random_number() % 7;
         reel3 = get_random_number() % 7;
@@ -127,7 +135,7 @@ int main(void) {
         // win req in bits 15:12
         spi_data_upper = (REQ_WIN << 4);
         // winnings in BCD in bit 7:0
-        spi_data_upper = winnings_BCD & 0x00FF;
+        spi_data_lower = winnings_BCD & 0x00FF;
 
         // send win request
         digitalWrite(SPI_CE, PIO_LOW);
@@ -138,9 +146,10 @@ int main(void) {
         // trigger credit update for next loop iteration
         credit_count += winnings;
         credit_count -= wager;
+        //credit_count = 0;
         update_pending = 1;
       }
-
+      //credit_count = 0;
       button_push = 0;
 
     }
@@ -161,8 +170,16 @@ void EXTI15_10_IRQHandler(void){
         // If so, clear the interrupt (NB: Write 1 to reset.)
         EXTI->PR1 |= (1 << gpioPinOffset(COIN_PIN));
         
-        credit_count++;
-        update_pending = 1;
+        if (digitalRead(COIN_PIN) == 0) { // check for falling
+          credit_count++;
+          update_pending = 1;
+        }
+
+
+        //digitalWrite(PA6, PIO_HIGH);
+        //volatile int foobar = 10000;
+        //while(foobar) foobar--;
+        //digitalWrite(PA6, PIO_LOW);
     } 
 }
 
@@ -175,11 +192,17 @@ void EXTI15_10_IRQHandler(void){
 //               IN `main()`
 void EXTI9_5_IRQHandler(void){
 
-    if (EXTI->PR1 & (1 << gpioPinOffset(DONE_PIN))){
-        // If so, clear the interrupt (NB: Write 1 to reset.)
+    //if (EXTI->PR1 & (1 << gpioPinOffset(DONE_PIN))){
+    //    // If so, clear the interrupt (NB: Write 1 to reset.)
+    //    EXTI->PR1 |= (1 << gpioPinOffset(DONE_PIN));
+    //    done = 1;
+    //} 
+    if (EXTI->PR1 & (1 << gpioPinOffset(DONE_PIN))) {
         EXTI->PR1 |= (1 << gpioPinOffset(DONE_PIN));
-        done = 1;
-    } 
+        if (digitalRead(DONE_PIN)) 
+            done = 1;
+    }
+
       // Check that thr button was what triggered our interrupt
     if (EXTI->PR1 & (1 << gpioPinOffset(BUTTON_PIN))){
         // If so, clear the interrupt (NB: Write 1 to reset.)
