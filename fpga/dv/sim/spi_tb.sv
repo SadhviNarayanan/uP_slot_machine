@@ -1,5 +1,5 @@
-// `define SPI_TCLK_H 5ns
-// `define SPI_TCLK_L 20ns
+
+ `define CLK_HP 20ns
 
 module tb();
     
@@ -15,6 +15,7 @@ module tb();
     // (* keep *) logic cs   = 1;
     // (* keep *) logic rstn = 1;
 
+    (* keep *) logic clk = 1;
     (* keep *) logic sck = 0;
     (* keep *) logic rstn = 0;
     (* keep *) logic mosi;
@@ -30,6 +31,10 @@ module tb();
     (* keep *) logic is_total;
 
     initial begin
+        forever #20ns clk = ~clk;
+    end
+
+    initial begin
 
         rstn = 0;
         #50ns;
@@ -41,9 +46,12 @@ module tb();
         spi_send16(16'h20AA, mosi, sck, cs);
         #50ns;
 
+        $finish;
+
     end
 
-    spi_data_extract DUT (.sclk(sck), 
+    spi_data_extract DUT (.clk(clk),
+                          .sclk(sck), 
                           .reset_n(rstn), 
                           .copi(mosi), // sdi 
                           .cs(cs),  // active low
