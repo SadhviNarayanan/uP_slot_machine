@@ -22,6 +22,11 @@ int main(void) {
   pinMode(DONE_PIN,   GPIO_INPUT);
   pinMode(PA6,   GPIO_OUTPUT);
 
+  pinMode(WAGER1_PIN , GPIO_INPUT);
+  pinMode(WAGER2_PIN , GPIO_INPUT);
+  pinMode(WAGER5_PIN , GPIO_INPUT);
+  pinMode(WAGER10_PIN , GPIO_INPUT);
+
   initSPI(BR, CPOL, CPHA);
   digitalWrite(SPI_CE, PIO_HIGH);
 
@@ -81,7 +86,7 @@ int main(void) {
   uint8_t  reel1 = 0;
   uint8_t  reel2 = 0;
   uint8_t  reel3 = 0;
-  uint8_t  wager = 1;
+  volatile uint8_t  wager = 1;
   uint8_t  spi_data_upper = 0;
   uint8_t  spi_data_lower = 0;
 
@@ -109,7 +114,13 @@ int main(void) {
     }
 
     if (button_push) {
-      //credit_count = 0;
+
+        if      (digitalRead(WAGER10_PIN)) wager = 10;
+        else if (digitalRead(WAGER5_PIN))  wager = 5;
+        else if (digitalRead(WAGER2_PIN))  wager = 2;
+        else if (digitalRead(WAGER1_PIN))  wager = 1;
+        else                               wager = 100;
+
       if (credit_count >= wager) { // credit_count >= wager
         reel1 = get_random_number() % 7;
         reel2 = get_random_number() % 7;

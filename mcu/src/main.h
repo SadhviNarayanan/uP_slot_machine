@@ -11,6 +11,12 @@
 #define BUTTON_PIN PA8
 #define DONE_PIN   PA9
 
+// PB 3,4,5 TAKEN!!!
+#define WAGER1_PIN  PB0
+#define WAGER2_PIN  PB1
+#define WAGER5_PIN  PB6
+#define WAGER10_PIN PB7
+
 #define BR   1
 #define CPOL 0
 #define CPHA 0
