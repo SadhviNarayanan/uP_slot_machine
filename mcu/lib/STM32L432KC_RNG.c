@@ -1,0 +1,60 @@
+// STM32L432KC_RNG.c
+// Source code for True Random Number Generator (TRNG) functions
+
+#include <stm32l432xx.h>
+#include "STM32L432KC.h"
+#include "STM32L432KC_RNG.h"
+#include "STM32L432KC_RCC.h"
+
+
+/* 
+ * Enables the HSI48 clock and configures the RNG peripheral for the STM32L432KC.
+ */ 
+void initRNG(void) {
+    // 1. Enable the HSI48 clock. This is critical for the TRNG operation.
+    // Set the HSI48ON bit in RCC->CR
+    RCC->CRRCR |= RCC_CRRCR_HSI48ON;
+    while (!(RCC->CRRCR & RCC_CRRCR_HSI48RDY));
+    // 2. Select HSI48 as the clock source for the RNG in the Clock Configuration Register
+    // The RNGSEL[1:0] bits in RCC->CCIPR determine the clock source for RNG
+    // For L43x/L44x, 01 is typically HSI48, check your specific manual's RCC->CCIPR register description.
+    // Clear the current RNGSEL bits first (bits 13 and 12)
+    // RCC->CCIPR &= ~RCC_CCIPR_RNGSEL; 
+    // // Set RNGSEL to 01 (Select HSI48 clock)
+    // RCC->CCIPR |= RCC_CCIPR_RNGSEL_0; // Or use the specific bitmask defined in your header, likely (1 << 12)
+
+    RCC->CCIPR |= _VAL2FLD(RCC_CCIPR_CLK48SEL, 0b00);
+
+    // 3. Enable the clock access to the RNG peripheral (located on the AHB2 bus)
+    RCC->AHB2ENR |= RCC_AHB2ENR_RNGEN; 
+    
+    // A dummy read to ensure the clock enable has propagated
+    volatile uint32_t temp = RCC->AHB2ENR; 
+    (void)temp; 
+
+    // 4. Enable the Random Number Generator
+    RNG->CR |= RNG_CR_RNGEN;
+
+}
+
+/* 
+ * Waits for a new true random 32-bit number to be ready and returns it.
+ * -- return: a 32-bit true random number (uint32_t)
+ */
+uint32_t get_random_number(void) {
+    // Wait until the Data Ready (DRDY) flag is set in the Status Register (SR)
+    // The TRNG generates a number in about 40 periods of its clock (e.g., 48 MHz)
+    while(!(RNG->SR & RNG_SR_DRDY)); 
+
+    // Check for errors (Clock error (CEIS) or Seed error (SEIS)) in the status register
+    // A robust implementation would handle these flags. 
+    // For simplicity, we just check if data is ready.
+    if ((RNG->SR & (RNG_SR_CEIS | RNG_SR_SEIS)) != 0) {
+        // Handle error (e.g., clear error flags, log error, return an error code)
+        RNG->SR &= ~(RNG_SR_CEIS | RNG_SR_SEIS); // Clear error flags
+        // You may want to re-initialize or signal a failure
+    }
+
+    // Read the generated 32-bit random number from the Data Register (DR)
+    return RNG->DR;
+}
