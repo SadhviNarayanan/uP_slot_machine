@@ -170,10 +170,11 @@ int main(void) {
 }
 
 // GPIO PINS 15-10 EXTERNAL INTERRUPT HANDLER FUNCTION
-// PURPOSE: SERVICE INTERRUPT ON BUTTON_PIN BY CONFIRMING  
+// PURPOSE: SERVICE INTERRUPT ON COIN_PIN BY CONFIRMING  
 //          THAT AN INTERRUPT WAS TRIGGERED ON THAT PIN, THEN
 //          THEN SET BUTTON PRESS FLAG
-// SIDE EFFECTS: SETS `button_push` FLAG IN `main()`
+// SIDE EFFECTS: INCREMENTS `credit_count` AND SETS `update_pending`
+//               IN `main()`
 //
 void EXTI15_10_IRQHandler(void){
       // Check that Quad A was what triggered our interrupt
@@ -186,28 +187,19 @@ void EXTI15_10_IRQHandler(void){
           update_pending = 1;
         }
 
-
-        //digitalWrite(PA6, PIO_HIGH);
-        //volatile int foobar = 10000;
-        //while(foobar) foobar--;
-        //digitalWrite(PA6, PIO_LOW);
     } 
 }
 
 
 // GPIO PINS 9-5 EXTERNAL INTERRUPT HANDLER FUNCTION
-// PURPOSE: SERVICE INTERRUPT ON COIN_PIN BY CONFIRMING THAT 
+// PURPOSE: SERVICE INTERRUPT ON BUTTON_PIN AND DONE PIN BY CONFIRMING THAT 
 //          THAT AN INTERRUPT WAS TRIGGERED ON THAT PIN, THEN
-//          INCREMENT THE CREDIT COUNT AND SETS CREDIT UPDATE FLAG
-// SIDE EFFECTS: INCREMENTS `credit_count` AND SETS `update_pending`
+//          INCREMENT THE SET APPROPRIATE FLAG
+// SIDE EFFECTS: SETS `done` OR `button_push` FLAGS 
 //               IN `main()`
 void EXTI9_5_IRQHandler(void){
 
-    //if (EXTI->PR1 & (1 << gpioPinOffset(DONE_PIN))){
-    //    // If so, clear the interrupt (NB: Write 1 to reset.)
-    //    EXTI->PR1 |= (1 << gpioPinOffset(DONE_PIN));
-    //    done = 1;
-    //} 
+
     if (EXTI->PR1 & (1 << gpioPinOffset(DONE_PIN))) {
         EXTI->PR1 |= (1 << gpioPinOffset(DONE_PIN));
         if (digitalRead(DONE_PIN)) 
@@ -222,7 +214,6 @@ void EXTI9_5_IRQHandler(void){
     } 
 }
 
-/* AI CODE!!! UNTESTED!!! */
 uint16_t binToBCD3(uint16_t binary_val) {
     // Define the saturation limit for a 3-digit BCD range (999)
     const uint16_t BCD_LIMIT = 999;
