@@ -62,4 +62,8 @@ module vga_controller (input  logic clk,
 	// active video if we are within display range
     assign active_video = ((hcount >= H_DISPLAY_START && hcount < H_DISPLAY_END) && (vcount >= V_DISPLAY_START && vcount < V_DISPLAY_END));
 
+    `ifdef DV
+        `include "vga_ctrl_sva.svh"
+    `endif
+
 endmodule

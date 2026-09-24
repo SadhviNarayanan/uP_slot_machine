@@ -660,4 +660,8 @@ module memory_controller (
 		end
 	end
 
+    `ifdef DV
+        `include "mem_ctrl_sva.svh"
+    `endif
+
 endmodule

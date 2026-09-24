@@ -1,0 +1,38 @@
+[tasks]
+cover
+proof
+
+[options]
+cover:
+mode cover
+depth 100
+
+proof:
+mode prove
+depth 100
+--
+
+[engines]
+cover:
+smtbmc boolector
+
+proof:
+aiger suprove
+smtbmc boolector
+--
+
+
+[files]
+../../src/vga_controller.sv
+../sva/vga_ctrl_sva.svh
+
+[file defines.svh]
+`define DV
+
+[file vga_formal.sv]
+`include "defines.svh"
+`include "vga_controller.sv"
+
+[script]
+read_verilog -sv vga_formal.sv
+prep -top vga_controller
